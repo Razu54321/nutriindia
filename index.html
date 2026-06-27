@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="theme-color" content="#1a1a1a"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="NutriIndia"/>
+<meta name="description" content="Indian food nutrition tracker with 100+ foods"/>
+<title>NutriIndia</title>
+
+<!-- PWA Manifest inline -->
+<script>
+const manifestData = {
+  name: "NutriIndia – Food Nutrition",
+  short_name: "NutriIndia",
+  description: "Indian food nutrition tracker with 100+ foods",
+  start_url: "./",
+  display: "standalone",
+  background_color: "#1a1a1a",
+  theme_color: "#1a1a1a",
+  orientation: "portrait",
+  icons: [
+    { src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='40' fill='%23FF6B35'/%3E%3Ctext x='96' y='130' font-size='110' text-anchor='middle'%3E🍛%3C/text%3E%3C/svg%3E", sizes: "192x192", type: "image/svg+xml" },
+    { src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%23FF6B35'/%3E%3Ctext x='256' y='360' font-size='300' text-anchor='middle'%3E🍛%3C/text%3E%3C/svg%3E", sizes: "512x512", type: "image/svg+xml" }
+  ]
+};
+const blob = new Blob([JSON.stringify(manifestData)], {type:'application/json'});
+const manifestURL = URL.createObjectURL(blob);
+document.write('<link rel="manifest" href="' + manifestURL + '">');
+</script>
+
+<style>
+  :root {
+    --bg: #111111;
+    --surface: #1e1e1e;
+    --card: #272727;
+    --border: #333333;
+    --accent: #FF6B35;
+    --accent2: #FFB347;
+    --green: #4CAF7D;
+    --blue: #5B9BD5;
+    --red: #E05C5C;
+    --text: #f0f0f0;
+    --text2: #999;
+    --text3: #666;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --tab-h: 60px;
+    --header-h: 64px;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  /* LAYOUT */
+  #app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+
+  .top-bar {
+    flex-shrink: 0;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px 10px;
+    padding-top: max(12px, env(safe-area-inset-top, 12px));
+  }
+  .top-bar h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .top-bar p { font-size: 12px; color: var(--text3); margin-top: 1px; }
+
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  .tab-bar {
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding-bottom: var(--safe-bottom);
+  }
+  .tab-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 10px 4px;
+    border: none;
+    background: none;
+    color: var(--text3);
+    font-size: 10px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+  .tab-btn .icon { font-size: 22px; line-height: 1; }
+  .tab-btn.active { color: var(--accent); }
+  .tab-btn.active .icon { filter: drop-shadow(0 0 4px rgba(255,107,53,0.4)); }
+
+  .screen { display: none; padding: 14px 14px 20px; }
+  .screen.active { display: block; }
+
+  /* SEARCH */
+  .search-wrap { position: relative; margin-bottom: 10px; }
+  .search-wrap input {
+    width: 100%;
+    height: 44px;
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    padding: 0 14px 0 40px;
+    font-size: 15px;
+    color: var(--text);
+    font-family: inherit;
+    -webkit-appearance: none;
+  }
+  .search-wrap input:focus { outline: none; border-color: var(--accent); }
+  .search-wrap input::placeholder { color: var(--text3); }
+  .search-icon {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: var(--text3);
+    pointer-events: none;
+  }
+
+  /* CHIPS */
+  .chips {
+    display: flex;
+    gap: 7px;
+    overflow-x: auto;
+    padding: 0 0 10px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex-shrink: 0;
+    padding: 6px 13px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: none;
+    color: var(--text2);
+    font-size: 12px;
+    font-family: inherit;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .chip.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 600;
+  }
+
+  /* FOOD CARDS */
+  .food-list { display: flex; flex-direction: column; gap: 8px; }
+  .food-row {
+    display: flex;
+    align-items: center;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: border-color 0.15s;
+    gap: 12px;
+  }
+  .food-row:active { background: #2e2e2e; }
+  .food-row.selected { border-color: var(--accent); }
+  .food-emoji { font-size: 26px; flex-shrink: 0; }
+  .food-info { flex: 1; min-width: 0; }
+  .food-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .food-cat { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .food-kcal { font-size: 13px; font-weight: 700; color: var(--accent); flex-shrink: 0; }
+
+  /* NUTRITION DETAIL CARD */
+  .detail-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .detail-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+  .detail-title { font-size: 18px; font-weight: 700; }
+  .detail-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
+  .kcal-badge {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 20px;
+    flex-shrink: 0;
+  }
+
+  .macro-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 14px; }
+  .macro-tile {
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+    padding: 10px 6px;
+    text-align: center;
+  }
+  .macro-val { font-size: 17px; font-weight: 700; }
+  .macro-lbl { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+  .bar-list { margin-bottom: 14px; }
+  .bar-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .bar-lbl { font-size: 11px; color: var(--text2); width: 54px; flex-shrink: 0; }
+  .bar-track { flex: 1; height: 6px; background: #333; border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
+  .bar-val { font-size: 11px; color: var(--text3); width: 38px; text-align: right; flex-shrink: 0; }
+
+  .micro-section-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .micro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .micro-tile { background: var(--surface); border-radius: var(--radius-sm); padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; }
+  .micro-name { font-size: 11px; color: var(--text2); }
+  .micro-val { font-size: 12px; font-weight: 600; }
+
+  /* PLATE / TABLE */
+  .plate-food-list { max-height: 180px; overflow-y: auto; margin-bottom: 10px; }
+  .plate-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--card);
+    border-radius: var(--radius-sm);
+    margin-bottom: 6px;
+  }
+  .plate-name { flex: 1; font-size: 13px; font-weight: 500; }
+  .plate-kcal { font-size: 11px; color: var(--accent); }
+  .plate-rm { border: none; background: none; color: var(--text3); font-size: 18px; line-height: 1; cursor: pointer; padding: 2px; }
+
+  .total-strip {
+    background: linear-gradient(135deg, rgba(255,107,53,0.15), rgba(255,179,71,0.1));
+    border: 1.5px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-bottom: 12px;
+  }
+  .total-strip-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .total-label { font-size: 12px; font-weight: 600; color: var(--text2); }
+  .total-kcal { font-size: 22px; font-weight: 800; color: var(--accent); }
+  .total-macros { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; }
+  .total-m { text-align: center; }
+  .total-mv { font-size: 14px; font-weight: 700; }
+  .total-ml { font-size: 10px; color: var(--text3); margin-top: 1px; }
+
+  /* CUSTOM TABLE */
+  .dd-wrap { position: relative; margin-bottom: 8px; }
+  .dd-list {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    max-height: 220px;
+    overflow-y: auto;
+    display: none;
+    position: relative;
+    z-index: 10;
+    margin-top: 4px;
+  }
+  .dd-list.open { display: block; }
+  .dd-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .dd-item:last-child { border-bottom: none; }
+  .dd-item:active { background: #2e2e2e; }
+  .dd-iname { font-size: 13px; font-weight: 500; }
+  .dd-imeta { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .dd-kcal { font-size: 12px; color: var(--accent); font-weight: 600; flex-shrink: 0; }
+
+  .tbl-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--radius); border: 1.5px solid var(--border); margin-bottom: 10px; }
+  table.ctbl { border-collapse: collapse; font-size: 11px; min-width: 640px; width: 100%; }
+  table.ctbl th {
+    padding: 8px 10px;
+    text-align: right;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  table.ctbl th:first-child { text-align: left; min-width: 110px; position: sticky; left: 0; z-index: 2; }
+  table.ctbl td { padding: 9px 10px; text-align: right; border-bottom: 1px solid #2a2a2a; color: var(--text); }
+  table.ctbl td:first-child { text-align: left; font-weight: 600; position: sticky; left: 0; background: var(--card); z-index: 1; font-size: 11px; }
+  table.ctbl tbody tr:last-child td { border-bottom: none; }
+  table.ctbl tr.tbl-total td { background: rgba(255,107,53,0.1); color: var(--text); font-weight: 700; border-top: 1.5px solid var(--accent); }
+  table.ctbl tr.tbl-total td:first-child { background: rgba(255,107,53,0.12); color: var(--accent); }
+  .qty-in {
+    width: 50px;
+    height: 26px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 11px;
+    text-align: center;
+    font-family: inherit;
+    -webkit-appearance: none;
+  }
+  .qty-in:focus { outline: none; border-color: var(--accent); }
+  .rm-x { border: none; background: none; color: var(--text3); font-size: 16px; cursor: pointer; padding: 2px 4px; }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text3);
+  }
+  .empty-state .e-icon { font-size: 40px; margin-bottom: 10px; }
+  .empty-state p { font-size: 13px; line-height: 1.5; }
+
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .btn-sm {
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .btn-danger { background: none; border: 1.5px solid #555; color: var(--text2); }
+  .btn-accent { background: var(--accent); border: none; color: #fff; font-weight: 600; }
+
+  .no-results { text-align: center; padding: 20px; font-size: 13px; color: var(--text3); }
+
+  /* install banner */
+  #installBanner {
+    display: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  #installBanner.show { display: flex; }
+  #installBanner span { flex: 1; }
+  #installBanner button { background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-family: inherit; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- HEADER -->
+  <div class="top-bar">
+    <h1>🍛 NutriIndia</h1>
+    <p>100+ Indian foods · full nutrition data</p>
+  </div>
+
+  <!-- INSTALL BANNER -->
+  <div id="installBanner">
+    <span>📲 Add to Home Screen for quick access</span>
+    <button id="installBtn">Install</button>
+    <button onclick="document.getElementById('installBanner').classList.remove('show')" style="background:rgba(0,0,0,0.2)">✕</button>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content" id="content">
+
+    <!-- SINGLE FOOD -->
+    <div class="screen active" id="s-single">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="search" id="s1-search" placeholder="Search roti, egg, paneer, biryani…" oninput="renderSingle()" autocomplete="off"/>
+      </div>
+      <div class="chips" id="s1-chips"></div>
+      <div id="s1-detail"></div>
+      <div class="food-list" id="s1-list"></div>
+    </div>
+
+    <!-- MY PLATE -->
+    <div class="screen" id="s-plate">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="search" id="s2-search" placeholder="Search to add food…" oninput="renderPlateSearch()" autocomplete="off"/>
+      </div>
+      <div class="food-list" id="s2-search-list" style="max-height:200px;overflow-y:auto;margin-bottom:10px"></div>
+      <div id="s2-plate"></div>
+    </div>
+
+    <!-- CUSTOM TABLE -->
+    <div class="screen" id="s-table">
+      <div class="dd-wrap">
+        <div class="search-wrap">
+          <span class="search-icon">➕</span>
+          <input type="search" id="s3-search" placeholder="Search to add food to table…" oninput="renderTblSearch()" onfocus="openTblDd()" autocomplete="off"/>
+        </div>
+        <div class="dd-list" id="s3-dd"></div>
+      </div>
+      <div id="s3-table"></div>
+    </div>
+
+  </div>
+
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('single',this)" aria-label="Single food lookup">
+      <span class="icon">🔍</span>
+      <span>Search</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('plate',this)" aria-label="My plate meal tracker">
+      <span class="icon">🍽️</span>
+      <span>My Plate</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('table',this)" aria-label="Custom nutrition table">
+      <span class="icon">📊</span>
+      <span>Table</span>
+    </button>
+  </div>
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const EMOJIS = {
+  Breakfast:'🥞',Rice:'🍚',Dal:'🫘',Paneer:'🧀',Egg:'🥚',Chicken:'🍗',
+  Veggie:'🥦',Bread:'🫓',Snacks:'🥨',Dairy:'🥛',Sweets:'🍮',Fish:'🐟',
+  Mutton:'🥩',Drinks:'🥤',Sides:'🫙'
+};
+
+const FOODS=[
+  {name:"Idli",cat:"Breakfast",cal:58,prot:2,carb:12,fat:0.1,fiber:0.5,sugar:0,sodium:142,iron:0.3,calcium:6,vit_c:0,vit_a:0,potassium:54},
+  {name:"Dosa (plain)",cat:"Breakfast",cal:168,prot:3.9,carb:24,fat:6,fiber:1,sugar:0.5,sodium:135,iron:0.7,calcium:18,vit_c:0,vit_a:0,potassium:89},
+  {name:"Masala Dosa",cat:"Breakfast",cal:206,prot:4.5,carb:30,fat:8.5,fiber:1.8,sugar:1,sodium:310,iron:1.1,calcium:24,vit_c:4,vit_a:22,potassium:130},
+  {name:"Upma",cat:"Breakfast",cal:112,prot:3,carb:17,fat:3.5,fiber:1.5,sugar:0.5,sodium:180,iron:0.8,calcium:14,vit_c:1,vit_a:8,potassium:95},
+  {name:"Poha",cat:"Breakfast",cal:130,prot:2.5,carb:28,fat:2,fiber:1.2,sugar:1,sodium:160,iron:1.2,calcium:12,vit_c:3,vit_a:5,potassium:80},
+  {name:"Paratha (plain)",cat:"Breakfast",cal:260,prot:5.6,carb:37,fat:10,fiber:2.5,sugar:0.5,sodium:300,iron:1.5,calcium:30,vit_c:0,vit_a:0,potassium:110},
+  {name:"Aloo Paratha",cat:"Breakfast",cal:302,prot:6.5,carb:44,fat:11.5,fiber:3,sugar:1,sodium:380,iron:1.8,calcium:35,vit_c:6,vit_a:12,potassium:220},
+  {name:"Medu Vada",cat:"Breakfast",cal:210,prot:7,carb:22,fat:10,fiber:2,sugar:0,sodium:230,iron:2,calcium:40,vit_c:0,vit_a:0,potassium:140},
+  {name:"Rava Idli",cat:"Breakfast",cal:130,prot:4,carb:22,fat:4,fiber:1,sugar:0.5,sodium:220,iron:0.8,calcium:20,vit_c:0,vit_a:0,potassium:75},
+  {name:"Pesarattu",cat:"Breakfast",cal:148,prot:8,carb:20,fat:3.5,fiber:3,sugar:0.5,sodium:200,iron:2.5,calcium:35,vit_c:2,vit_a:5,potassium:180},
+  {name:"Steamed Rice",cat:"Rice",cal:130,prot:2.7,carb:28,fat:0.3,fiber:0.4,sugar:0,sodium:1,iron:0.2,calcium:10,vit_c:0,vit_a:0,potassium:35},
+  {name:"Jeera Rice",cat:"Rice",cal:148,prot:3,carb:29,fat:3,fiber:0.5,sugar:0,sodium:120,iron:0.5,calcium:12,vit_c:0,vit_a:0,potassium:40},
+  {name:"Biryani (Chicken)",cat:"Rice",cal:240,prot:14,carb:30,fat:7,fiber:1,sugar:1,sodium:540,iron:1.5,calcium:28,vit_c:2,vit_a:40,potassium:220},
+  {name:"Biryani (Veg)",cat:"Rice",cal:198,prot:5,carb:34,fat:5,fiber:2.5,sugar:1,sodium:400,iron:1.2,calcium:40,vit_c:5,vit_a:60,potassium:190},
+  {name:"Lemon Rice",cat:"Rice",cal:172,prot:3.5,carb:30,fat:5,fiber:0.8,sugar:0.5,sodium:220,iron:0.6,calcium:15,vit_c:8,vit_a:5,potassium:80},
+  {name:"Curd Rice",cat:"Rice",cal:145,prot:4,carb:26,fat:3.5,fiber:0.3,sugar:2,sodium:95,iron:0.2,calcium:95,vit_c:0,vit_a:30,potassium:120},
+  {name:"Khichdi",cat:"Rice",cal:155,prot:6,carb:27,fat:3,fiber:2,sugar:0.5,sodium:180,iron:1.5,calcium:30,vit_c:0,vit_a:10,potassium:160},
+  {name:"Dal Tadka",cat:"Dal",cal:116,prot:7.5,carb:16,fat:3,fiber:4,sugar:1,sodium:290,iron:2.5,calcium:45,vit_c:3,vit_a:15,potassium:300},
+  {name:"Dal Makhani",cat:"Dal",cal:152,prot:8,carb:18,fat:5.5,fiber:5,sugar:1.5,sodium:380,iron:3,calcium:60,vit_c:2,vit_a:20,potassium:340},
+  {name:"Chana Dal",cat:"Dal",cal:164,prot:9,carb:24,fat:3,fiber:6,sugar:1,sodium:250,iron:3.2,calcium:55,vit_c:1,vit_a:8,potassium:380},
+  {name:"Sambar",cat:"Dal",cal:78,prot:4.5,carb:12,fat:2,fiber:3,sugar:2,sodium:340,iron:1.8,calcium:42,vit_c:18,vit_a:35,potassium:280},
+  {name:"Rajma",cat:"Dal",cal:142,prot:8.5,carb:20,fat:2.5,fiber:6,sugar:1.5,sodium:310,iron:2.8,calcium:65,vit_c:4,vit_a:10,potassium:380},
+  {name:"Moong Dal",cat:"Dal",cal:105,prot:7,carb:15,fat:1,fiber:4,sugar:0.5,sodium:200,iron:2,calcium:40,vit_c:1,vit_a:5,potassium:270},
+  {name:"Chhole (Chole)",cat:"Dal",cal:180,prot:10,carb:26,fat:4.5,fiber:7,sugar:2,sodium:420,iron:3.5,calcium:70,vit_c:6,vit_a:12,potassium:420},
+  {name:"Paneer",cat:"Paneer",cal:265,prot:18,carb:3,fat:20,fiber:0,sugar:3,sodium:30,iron:0.5,calcium:480,vit_c:0,vit_a:80,potassium:90},
+  {name:"Palak Paneer",cat:"Paneer",cal:205,prot:12,carb:8,fat:14,fiber:2.5,sugar:2,sodium:380,iron:3.5,calcium:350,vit_c:28,vit_a:600,potassium:310},
+  {name:"Paneer Butter Masala",cat:"Paneer",cal:290,prot:13,carb:14,fat:21,fiber:1.5,sugar:5,sodium:480,iron:1.5,calcium:320,vit_c:12,vit_a:180,potassium:290},
+  {name:"Shahi Paneer",cat:"Paneer",cal:320,prot:12,carb:16,fat:24,fiber:1,sugar:6,sodium:420,iron:1.2,calcium:300,vit_c:8,vit_a:140,potassium:240},
+  {name:"Paneer Tikka",cat:"Paneer",cal:255,prot:16,carb:6,fat:19,fiber:1,sugar:2,sodium:480,iron:1,calcium:420,vit_c:10,vit_a:120,potassium:180},
+  {name:"Kadai Paneer",cat:"Paneer",cal:275,prot:14,carb:12,fat:20,fiber:2,sugar:3,sodium:460,iron:1.5,calcium:370,vit_c:22,vit_a:200,potassium:310},
+  {name:"Matar Paneer",cat:"Paneer",cal:220,prot:12,carb:14,fat:14,fiber:3,sugar:3,sodium:380,iron:2.2,calcium:280,vit_c:20,vit_a:80,potassium:290},
+  {name:"Boiled Egg",cat:"Egg",cal:155,prot:13,carb:1.1,fat:11,fiber:0,sugar:1.1,sodium:124,iron:1.2,calcium:50,vit_c:0,vit_a:160,potassium:126},
+  {name:"Egg Bhurji",cat:"Egg",cal:178,prot:11,carb:4,fat:13,fiber:0.5,sugar:1,sodium:320,iron:1.5,calcium:55,vit_c:8,vit_a:200,potassium:180},
+  {name:"Egg Curry",cat:"Egg",cal:185,prot:12,carb:6,fat:12.5,fiber:1,sugar:2,sodium:380,iron:2,calcium:60,vit_c:12,vit_a:180,potassium:220},
+  {name:"Masala Omelette",cat:"Egg",cal:190,prot:12,carb:3.5,fat:14,fiber:0.5,sugar:1,sodium:400,iron:1.4,calcium:55,vit_c:10,vit_a:190,potassium:170},
+  {name:"Anda Paratha",cat:"Egg",cal:278,prot:13,carb:30,fat:12,fiber:2,sugar:0.5,sodium:420,iron:2.2,calcium:60,vit_c:2,vit_a:100,potassium:190},
+  {name:"Chicken Curry",cat:"Chicken",cal:215,prot:22,carb:4,fat:12,fiber:1,sugar:2,sodium:480,iron:1.8,calcium:30,vit_c:8,vit_a:50,potassium:380},
+  {name:"Butter Chicken",cat:"Chicken",cal:250,prot:20,carb:10,fat:15,fiber:1,sugar:4,sodium:520,iron:1.5,calcium:40,vit_c:10,vit_a:90,potassium:350},
+  {name:"Tandoori Chicken",cat:"Chicken",cal:190,prot:28,carb:3,fat:7,fiber:0.5,sugar:1,sodium:560,iron:1.6,calcium:25,vit_c:4,vit_a:60,potassium:400},
+  {name:"Chicken Tikka Masala",cat:"Chicken",cal:235,prot:21,carb:9,fat:13,fiber:1,sugar:3,sodium:500,iron:1.7,calcium:35,vit_c:12,vit_a:80,potassium:360},
+  {name:"Keema (Chicken)",cat:"Chicken",cal:220,prot:20,carb:5,fat:13,fiber:1.5,sugar:2,sodium:440,iron:2.2,calcium:28,vit_c:6,vit_a:40,potassium:320},
+  {name:"Aloo Gobhi",cat:"Veggie",cal:120,prot:3.5,carb:18,fat:4.5,fiber:3,sugar:2,sodium:310,iron:1,calcium:35,vit_c:40,vit_a:8,potassium:280},
+  {name:"Baingan Bharta",cat:"Veggie",cal:95,prot:2.5,carb:12,fat:4,fiber:3.5,sugar:4,sodium:330,iron:0.8,calcium:20,vit_c:10,vit_a:15,potassium:320},
+  {name:"Bhindi Masala",cat:"Veggie",cal:105,prot:2,carb:14,fat:4.5,fiber:3,sugar:2,sodium:290,iron:0.7,calcium:82,vit_c:23,vit_a:36,potassium:300},
+  {name:"Jeera Aloo",cat:"Veggie",cal:148,prot:3,carb:25,fat:5,fiber:2.5,sugar:1,sodium:260,iron:0.8,calcium:18,vit_c:18,vit_a:5,potassium:420},
+  {name:"Palak (Spinach)",cat:"Veggie",cal:72,prot:4,carb:6,fat:3.5,fiber:3,sugar:1,sodium:310,iron:4,calcium:120,vit_c:35,vit_a:800,potassium:360},
+  {name:"Roti (Chapati)",cat:"Bread",cal:104,prot:3.5,carb:20,fat:1,fiber:2,sugar:0,sodium:80,iron:1.2,calcium:16,vit_c:0,vit_a:0,potassium:100},
+  {name:"Puri",cat:"Bread",cal:250,prot:5,carb:35,fat:11,fiber:2,sugar:0.5,sodium:180,iron:1.5,calcium:20,vit_c:0,vit_a:0,potassium:90},
+  {name:"Naan",cat:"Bread",cal:310,prot:8,carb:52,fat:7,fiber:2.5,sugar:3,sodium:480,iron:2,calcium:35,vit_c:0,vit_a:0,potassium:120},
+  {name:"Butter Naan",cat:"Bread",cal:370,prot:8,carb:52,fat:14,fiber:2.5,sugar:3,sodium:540,iron:2,calcium:35,vit_c:0,vit_a:10,potassium:120},
+  {name:"Missi Roti",cat:"Bread",cal:145,prot:5.5,carb:25,fat:3.5,fiber:3.5,sugar:0.5,sodium:240,iron:1.8,calcium:35,vit_c:0,vit_a:5,potassium:140},
+  {name:"Samosa",cat:"Snacks",cal:308,prot:5,carb:42,fat:14,fiber:2.5,sugar:1,sodium:460,iron:1.5,calcium:25,vit_c:8,vit_a:10,potassium:200},
+  {name:"Pakora (Vegetable)",cat:"Snacks",cal:290,prot:6,carb:32,fat:16,fiber:2.5,sugar:1,sodium:380,iron:1.2,calcium:30,vit_c:10,vit_a:20,potassium:180},
+  {name:"Pani Puri",cat:"Snacks",cal:180,prot:3,carb:30,fat:6,fiber:2,sugar:2,sodium:420,iron:1,calcium:15,vit_c:5,vit_a:5,potassium:120},
+  {name:"Bhel Puri",cat:"Snacks",cal:220,prot:4.5,carb:38,fat:6,fiber:2,sugar:4,sodium:480,iron:1.2,calcium:25,vit_c:8,vit_a:15,potassium:150},
+  {name:"Vada Pav",cat:"Snacks",cal:298,prot:6,carb:44,fat:11,fiber:2.5,sugar:2,sodium:540,iron:1.5,calcium:40,vit_c:10,vit_a:10,potassium:220},
+  {name:"Dhokla",cat:"Snacks",cal:145,prot:6,carb:25,fat:2,fiber:1.5,sugar:3,sodium:380,iron:1,calcium:45,vit_c:0,vit_a:0,potassium:100},
+  {name:"Pav Bhaji",cat:"Snacks",cal:180,prot:5,carb:28,fat:6,fiber:3.5,sugar:4,sodium:520,iron:1.5,calcium:50,vit_c:30,vit_a:80,potassium:360},
+  {name:"Dahi (Curd)",cat:"Dairy",cal:60,prot:3.5,carb:4,fat:3.5,fiber:0,sugar:4,sodium:46,iron:0.1,calcium:120,vit_c:0,vit_a:30,potassium:155},
+  {name:"Lassi (Sweet)",cat:"Dairy",cal:95,prot:4,carb:12,fat:3.5,fiber:0,sugar:11,sodium:55,iron:0.1,calcium:130,vit_c:0,vit_a:35,potassium:165},
+  {name:"Buttermilk (Chaas)",cat:"Dairy",cal:40,prot:3,carb:5,fat:1,fiber:0,sugar:4.5,sodium:105,iron:0.1,calcium:100,vit_c:0,vit_a:20,potassium:140},
+  {name:"Ghee",cat:"Dairy",cal:898,prot:0,carb:0,fat:100,fiber:0,sugar:0,sodium:2,iron:0,calcium:0,vit_c:0,vit_a:0,potassium:5},
+  {name:"Milk (full fat)",cat:"Dairy",cal:65,prot:3.2,carb:4.8,fat:3.8,fiber:0,sugar:4.8,sodium:44,iron:0.1,calcium:113,vit_c:0,vit_a:46,potassium:150},
+  {name:"Gulab Jamun",cat:"Sweets",cal:380,prot:6,carb:55,fat:16,fiber:0.5,sugar:45,sodium:120,iron:0.5,calcium:80,vit_c:0,vit_a:20,potassium:110},
+  {name:"Jalebi",cat:"Sweets",cal:400,prot:2,carb:72,fat:12,fiber:0.5,sugar:65,sodium:100,iron:0.5,calcium:20,vit_c:0,vit_a:0,potassium:50},
+  {name:"Halwa (Suji)",cat:"Sweets",cal:310,prot:5,carb:45,fat:13,fiber:1,sugar:28,sodium:90,iron:1.2,calcium:30,vit_c:0,vit_a:20,potassium:100},
+  {name:"Ladoo (Besan)",cat:"Sweets",cal:450,prot:8,carb:58,fat:22,fiber:2,sugar:38,sodium:85,iron:2,calcium:60,vit_c:0,vit_a:0,potassium:120},
+  {name:"Fish Curry",cat:"Fish",cal:142,prot:18,carb:4,fat:6,fiber:1,sugar:1.5,sodium:520,iron:1.2,calcium:35,vit_c:8,vit_a:40,potassium:380},
+  {name:"Prawn Masala",cat:"Fish",cal:165,prot:22,carb:5,fat:6.5,fiber:1,sugar:2,sodium:560,iron:2.5,calcium:80,vit_c:10,vit_a:60,potassium:340},
+  {name:"Mutton Curry",cat:"Mutton",cal:258,prot:22,carb:5,fat:17,fiber:1,sugar:2,sodium:520,iron:3.2,calcium:30,vit_c:5,vit_a:30,potassium:340},
+  {name:"Rogan Josh",cat:"Mutton",cal:270,prot:23,carb:6,fat:17,fiber:1.5,sugar:2,sodium:540,iron:3.5,calcium:35,vit_c:4,vit_a:25,potassium:360},
+  {name:"Seekh Kebab",cat:"Mutton",cal:230,prot:22,carb:4,fat:14,fiber:1,sugar:1,sodium:480,iron:3,calcium:25,vit_c:3,vit_a:20,potassium:310},
+  {name:"Masala Chai",cat:"Drinks",cal:55,prot:1.5,carb:8,fat:2,fiber:0,sugar:7,sodium:20,iron:0.1,calcium:55,vit_c:0,vit_a:20,potassium:80},
+  {name:"Mango Lassi",cat:"Drinks",cal:120,prot:3.5,carb:22,fat:2.5,fiber:0.5,sugar:20,sodium:50,iron:0.3,calcium:110,vit_c:18,vit_a:110,potassium:200},
+  {name:"Coconut Water",cat:"Drinks",cal:19,prot:0.7,carb:3.7,fat:0.2,fiber:1,sugar:2.6,sodium:105,iron:0.3,calcium:24,vit_c:2.4,vit_a:0,potassium:250},
+  {name:"Nimbu Pani",cat:"Drinks",cal:30,prot:0.3,carb:8,fat:0.1,fiber:0,sugar:7,sodium:180,iron:0.1,calcium:8,vit_c:18,vit_a:0,potassium:50},
+  {name:"Raita",cat:"Sides",cal:62,prot:3,carb:6,fat:2.5,fiber:0.5,sugar:5,sodium:120,iron:0.2,calcium:110,vit_c:3,vit_a:25,potassium:175},
+  {name:"Papad",cat:"Sides",cal:350,prot:22,carb:52,fat:4,fiber:6,sugar:0,sodium:1500,iron:5,calcium:100,vit_c:0,vit_a:0,potassium:350},
+  {name:"Chutney (Mint)",cat:"Sides",cal:45,prot:1.5,carb:7,fat:1,fiber:2,sugar:2,sodium:280,iron:1.5,calcium:30,vit_c:20,vit_a:80,potassium:120},
+];
+
+const CATS = [...new Set(FOODS.map(f=>f.cat))];
+let s1Cat = 'All';
+let s1Selected = null;
+let plateItems = [];
+let tableRows = [];
+
+function scale(f, g){ const r=g/100; return {cal:f.cal*r,prot:f.prot*r,carb:f.carb*r,fat:f.fat*r,fiber:f.fiber*r,sugar:f.sugar*r,sodium:f.sodium*r,iron:f.iron*r,calcium:f.calcium*r,vit_c:f.vit_c*r,vit_a:f.vit_a*r,potassium:f.potassium*r}; }
+function fmt(v,d=1){ return parseFloat(v.toFixed(d)); }
+
+// ─── SINGLE ──────────────────────────────────────────────────────────────────
+function initChips(){
+  const wrap = document.getElementById('s1-chips');
+  ['All',...CATS].forEach(c=>{
+    const btn = document.createElement('button');
+    btn.className = 'chip' + (c===s1Cat?' active':'');
+    btn.textContent = (EMOJIS[c]||'') + ' ' + c;
+    btn.onclick = ()=>{ s1Cat=c; document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active')); btn.classList.add('active'); renderSingle(); };
+    wrap.appendChild(btn);
+  });
+}
+
+function renderSingle(){
+  const q = document.getElementById('s1-search').value.toLowerCase();
+  const foods = FOODS.filter(f=>(!q||f.name.toLowerCase().includes(q))&&(s1Cat==='All'||f.cat===s1Cat));
+  const list = document.getElementById('s1-list');
+  list.innerHTML = foods.length ? foods.map((f,i)=>`
+    <div class="food-row${s1Selected===FOODS.indexOf(f)?' selected':''}" onclick="showDetail(${FOODS.indexOf(f)})">
+      <span class="food-emoji">${EMOJIS[f.cat]||'🍴'}</span>
+      <div class="food-info">
+        <div class="food-name">${f.name}</div>
+        <div class="food-cat">${f.cat}</div>
+      </div>
+      <div class="food-kcal">${f.cal} kcal</div>
+    </div>`).join('') : '<div class="no-results">No foods found</div>';
+}
+
+function showDetail(idx){
+  s1Selected = idx;
+  const f = FOODS[idx];
+  const mx = Math.max(f.prot,f.carb,f.fat,f.fiber)||1;
+  document.getElementById('s1-detail').innerHTML = `
+  <div class="detail-card">
+    <div class="detail-header">
+      <div>
+        <div class="detail-title">${EMOJIS[f.cat]||''} ${f.name}</div>
+        <div class="detail-sub">${f.cat} · Per 100g serving</div>
+      </div>
+      <div class="kcal-badge">${f.cal} kcal</div>
+    </div>
+    <div class="micro-section-title">Macronutrients</div>
+    <div class="macro-row">
+      <div class="macro-tile"><div class="macro-val" style="color:#5B9BD5">${f.prot}g</div><div class="macro-lbl">Protein</div></div>
+      <div class="macro-tile"><div class="macro-val" style="color:#FFB347">${f.carb}g</div><div class="macro-lbl">Carbs</div></div>
+      <div class="macro-tile"><div class="macro-val" style="color:#E05C5C">${f.fat}g</div><div class="macro-lbl">Fat</div></div>
+      <div class="macro-tile"><div class="macro-val" style="color:#4CAF7D">${f.fiber}g</div><div class="macro-lbl">Fiber</div></div>
+    </div>
+    <div class="bar-list">
+      ${[['Protein',f.prot,'#5B9BD5'],['Carbs',f.carb,'#FFB347'],['Fat',f.fat,'#E05C5C'],['Fiber',f.fiber,'#4CAF7D']].map(([l,v,c])=>`
+      <div class="bar-item"><div class="bar-lbl">${l}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/mx*100)}%;background:${c}"></div></div><div class="bar-val">${v}g</div></div>`).join('')}
+    </div>
+    <div class="micro-section-title">Micronutrients</div>
+    <div class="micro-grid">
+      <div class="micro-tile"><span class="micro-name">Sugar</span><span class="micro-val">${f.sugar}g</span></div>
+      <div class="micro-tile"><span class="micro-name">Sodium</span><span class="micro-val">${f.sodium}mg</span></div>
+      <div class="micro-tile"><span class="micro-name">Iron</span><span class="micro-val">${f.iron}mg</span></div>
+      <div class="micro-tile"><span class="micro-name">Calcium</span><span class="micro-val">${f.calcium}mg</span></div>
+      <div class="micro-tile"><span class="micro-name">Vitamin C</span><span class="micro-val">${f.vit_c}mg</span></div>
+      <div class="micro-tile"><span class="micro-name">Vitamin A</span><span class="micro-val">${f.vit_a}µg</span></div>
+      <div class="micro-tile"><span class="micro-name">Potassium</span><span class="micro-val">${f.potassium}mg</span></div>
+    </div>
+  </div>`;
+  document.getElementById('s1-detail').scrollIntoView({behavior:'smooth',block:'nearest'});
+  renderSingle();
+}
+
+// ─── PLATE ───────────────────────────────────────────────────────────────────
+function renderPlateSearch(){
+  const q = document.getElementById('s2-search').value.toLowerCase();
+  const wrap = document.getElementById('s2-search-list');
+  if(!q){wrap.innerHTML='';return;}
+  const foods = FOODS.filter(f=>f.name.toLowerCase().includes(q)).slice(0,12);
+  wrap.innerHTML = foods.map(f=>`
+    <div class="food-row" onclick="addToPlate(${FOODS.indexOf(f)})">
+      <span class="food-emoji">${EMOJIS[f.cat]||'🍴'}</span>
+      <div class="food-info"><div class="food-name">${f.name}</div><div class="food-cat">${f.cat}</div></div>
+      <div class="food-kcal">+ Add</div>
+    </div>`).join('');
+}
+
+function addToPlate(idx){ plateItems.push(idx); renderPlateDisplay(); document.getElementById('s2-search').value=''; document.getElementById('s2-search-list').innerHTML=''; }
+function removeFromPlate(i){ plateItems.splice(i,1); renderPlateDisplay(); }
+function clearPlate(){ plateItems=[]; renderPlateDisplay(); }
+
+function renderPlateDisplay(){
+  const wrap = document.getElementById('s2-plate');
+  if(!plateItems.length){wrap.innerHTML='<div class="empty-state"><div class="e-icon">🍽️</div><p>Search a food above and tap to add it to your plate</p></div>';return;}
+  const sum=k=>plateItems.reduce((a,idx)=>a+FOODS[idx][k],0);
+  const tC=sum('cal'),tP=sum('prot'),tCb=sum('carb'),tF=sum('fat'),tFi=sum('fiber');
+  wrap.innerHTML = `
+  <div class="total-strip">
+    <div class="total-strip-top">
+      <div class="total-label">TOTAL · ${plateItems.length} food${plateItems.length>1?'s':''}</div>
+      <div class="total-kcal">${Math.round(tC)} kcal</div>
+    </div>
+    <div class="total-macros">
+      <div class="total-m"><div class="total-mv" style="color:#5B9BD5">${tP.toFixed(1)}g</div><div class="total-ml">Protein</div></div>
+      <div class="total-m"><div class="total-mv" style="color:#FFB347">${tCb.toFixed(1)}g</div><div class="total-ml">Carbs</div></div>
+      <div class="total-m"><div class="total-mv" style="color:#E05C5C">${tF.toFixed(1)}g</div><div class="total-ml">Fat</div></div>
+      <div class="total-m"><div class="total-mv" style="color:#4CAF7D">${tFi.toFixed(1)}g</div><div class="total-ml">Fiber</div></div>
+    </div>
+  </div>
+  <div class="btn-row"><button class="btn-sm btn-danger" onclick="clearPlate()">Clear plate</button></div>
+  <div class="food-list">
+    ${plateItems.map((idx,i)=>{const f=FOODS[idx];return`
+    <div class="plate-row">
+      <span style="font-size:20px">${EMOJIS[f.cat]||'🍴'}</span>
+      <div class="plate-name">${f.name}</div>
+      <div class="plate-kcal">${f.cal} kcal</div>
+      <button class="plate-rm" onclick="removeFromPlate(${i})">×</button>
+    </div>`;}).join('')}
+  </div>`;
+}
+
+// ─── TABLE ───────────────────────────────────────────────────────────────────
+function renderTblSearch(){
+  const q = document.getElementById('s3-search').value.toLowerCase();
+  const dd = document.getElementById('s3-dd');
+  if(!q){dd.classList.remove('open');return;}
+  const foods = FOODS.filter(f=>f.name.toLowerCase().includes(q)).slice(0,12);
+  if(!foods.length){dd.innerHTML='<div class="dd-item"><span class="dd-imeta">No results</span></div>';dd.classList.add('open');return;}
+  dd.innerHTML = foods.map(f=>`
+    <div class="dd-item" onclick="addToTable(${FOODS.indexOf(f)})">
+      <div><div class="dd-iname">${EMOJIS[f.cat]||''} ${f.name}</div><div class="dd-imeta">${f.cat}</div></div>
+      <div class="dd-kcal">${f.cal} kcal</div>
+    </div>`).join('');
+  dd.classList.add('open');
+}
+function openTblDd(){ if(document.getElementById('s3-search').value) renderTblSearch(); }
+document.addEventListener('click',e=>{ if(!e.target.closest('#s3-search')&&!e.target.closest('#s3-dd')) document.getElementById('s3-dd').classList.remove('open'); });
+
+function addToTable(idx){
+  if(!tableRows.some(r=>r.idx===idx)) tableRows.push({idx,qty:100});
+  document.getElementById('s3-dd').classList.remove('open');
+  document.getElementById('s3-search').value='';
+  renderTable();
+}
+function removeFromTable(i){ tableRows.splice(i,1); renderTable(); }
+function clearTable(){ tableRows=[]; renderTable(); }
+function updateQty(i,v){ const n=parseFloat(v); if(!isNaN(n)&&n>0){tableRows[i].qty=n;renderTable();} }
+
+function renderTable(){
+  const wrap = document.getElementById('s3-table');
+  if(!tableRows.length){wrap.innerHTML='<div class="empty-state"><div class="e-icon">📊</div><p>Search and add foods above to build your custom nutrition table</p></div>';return;}
+  const cols=[
+    {k:'cal',l:'Cal',u:'kcal'},{k:'prot',l:'Prot',u:'g'},{k:'carb',l:'Carbs',u:'g'},
+    {k:'fat',l:'Fat',u:'g'},{k:'fiber',l:'Fiber',u:'g'},{k:'sugar',l:'Sugar',u:'g'},
+    {k:'sodium',l:'Na',u:'mg'},{k:'iron',l:'Iron',u:'mg'},{k:'calcium',l:'Ca',u:'mg'},
+    {k:'vit_c',l:'VitC',u:'mg'},{k:'potassium',l:'K',u:'mg'},
+  ];
+  const totals={};cols.forEach(c=>totals[c.k]=0);
+  const bodyRows = tableRows.map((row,i)=>{
+    const f=FOODS[row.idx]; const s=scale(f,row.qty);
+    cols.forEach(c=>totals[c.k]+=s[c.k]);
+    return `<tr>
+      <td><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px">${EMOJIS[f.cat]||''} ${f.name}</div></td>
+      <td><input class="qty-in" type="number" min="1" max="2000" value="${row.qty}" onchange="updateQty(${i},this.value)"/></td>
+      ${cols.map(c=>`<td>${fmt(s[c.k])}<span style="font-size:9px;color:var(--text3)"> ${c.u}</span></td>`).join('')}
+      <td><button class="rm-x" onclick="removeFromTable(${i})">×</button></td>
+    </tr>`;
+  }).join('');
+  wrap.innerHTML=`
+  <div class="btn-row"><button class="btn-sm btn-danger" onclick="clearTable()">Clear table</button><span style="font-size:11px;color:var(--text3);align-self:center">Edit grams per row — totals update live</span></div>
+  <div class="tbl-scroll">
+    <table class="ctbl">
+      <thead><tr>
+        <th>Food</th><th>Qty(g)</th>
+        ${cols.map(c=>`<th>${c.l}</th>`).join('')}
+        <th></th>
+      </tr></thead>
+      <tbody>
+        ${bodyRows}
+        <tr class="tbl-total">
+          <td>TOTAL</td><td>—</td>
+          ${cols.map(c=>`<td>${fmt(totals[c.k])}<span style="font-size:9px"> ${c.u}</span></td>`).join('')}
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>`;
+}
+
+// ─── TABS ────────────────────────────────────────────────────────────────────
+function switchTab(name, btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('s-'+name).classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('content').scrollTop=0;
+}
+
+// ─── PWA INSTALL ─────────────────────────────────────────────────────────────
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e=>{
+  e.preventDefault(); deferredPrompt=e;
+  document.getElementById('installBanner').classList.add('show');
+});
+document.getElementById('installBtn').addEventListener('click', async ()=>{
+  if(deferredPrompt){ deferredPrompt.prompt(); const r=await deferredPrompt.userChoice; deferredPrompt=null; }
+  document.getElementById('installBanner').classList.remove('show');
+});
+
+// ─── SERVICE WORKER ──────────────────────────────────────────────────────────
+if('serviceWorker' in navigator){
+  const swCode = `
+    const CACHE='nutriindia-v1';
+    const ASSETS=['/'];
+    self.addEventListener('install',e=>{ e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS))); self.skipWaiting(); });
+    self.addEventListener('activate',e=>{ e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k))))); self.clients.claim(); });
+    self.addEventListener('fetch',e=>{ e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match('/')))); });
+  `;
+  const swBlob = new Blob([swCode],{type:'application/javascript'});
+  const swURL = URL.createObjectURL(swBlob);
+  navigator.serviceWorker.register(swURL).catch(()=>{});
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+initChips();
+renderSingle();
+renderPlateDisplay();
+renderTable();
+</script>
+</body>
+</html>
