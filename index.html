@@ -7,580 +7,380 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="NutriIndia"/>
-<meta name="description" content="Indian food nutrition tracker with 100+ foods"/>
+<meta name="description" content="Indian food nutrition tracker with 150+ foods"/>
 <title>NutriIndia</title>
-
-<!-- PWA Manifest inline -->
 <script>
-const manifestData = {
-  name: "NutriIndia – Food Nutrition",
-  short_name: "NutriIndia",
-  description: "Indian food nutrition tracker with 100+ foods",
-  start_url: "./",
-  display: "standalone",
-  background_color: "#1a1a1a",
-  theme_color: "#1a1a1a",
-  orientation: "portrait",
-  icons: [
-    { src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='40' fill='%23FF6B35'/%3E%3Ctext x='96' y='130' font-size='110' text-anchor='middle'%3E🍛%3C/text%3E%3C/svg%3E", sizes: "192x192", type: "image/svg+xml" },
-    { src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%23FF6B35'/%3E%3Ctext x='256' y='360' font-size='300' text-anchor='middle'%3E🍛%3C/text%3E%3C/svg%3E", sizes: "512x512", type: "image/svg+xml" }
-  ]
-};
-const blob = new Blob([JSON.stringify(manifestData)], {type:'application/json'});
-const manifestURL = URL.createObjectURL(blob);
-document.write('<link rel="manifest" href="' + manifestURL + '">');
+const manifestData={name:"NutriIndia – Food Nutrition",short_name:"NutriIndia",description:"Indian food nutrition tracker with 150+ foods",start_url:"./",display:"standalone",background_color:"#1a1a1a",theme_color:"#1a1a1a",orientation:"portrait",icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='40' fill='%23FF6B35'/%3E%3Ctext x='96' y='130' font-size='110' text-anchor='middle'%3E🍛%3C/text%3E%3C/svg%3E",sizes:"192x192",type:"image/svg+xml"},{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%23FF6B35'/%3E%3Ctext x='256' y='360' font-size='300' text-anchor='middle'%3E🍛%3C/text%3E%3C/svg%3E",sizes:"512x512",type:"image/svg+xml"}]};
+const blob=new Blob([JSON.stringify(manifestData)],{type:'application/json'});
+document.write('<link rel="manifest" href="'+URL.createObjectURL(blob)+'">');
 </script>
-
 <style>
-  :root {
-    --bg: #111111;
-    --surface: #1e1e1e;
-    --card: #272727;
-    --border: #333333;
-    --accent: #FF6B35;
-    --accent2: #FFB347;
-    --green: #4CAF7D;
-    --blue: #5B9BD5;
-    --red: #E05C5C;
-    --text: #f0f0f0;
-    --text2: #999;
-    --text3: #666;
-    --radius: 14px;
-    --radius-sm: 8px;
-    --tab-h: 60px;
-    --header-h: 64px;
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; overflow: hidden; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-  }
-
-  /* LAYOUT */
-  #app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
-
-  .top-bar {
-    flex-shrink: 0;
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
-    padding: 12px 16px 10px;
-    padding-top: max(12px, env(safe-area-inset-top, 12px));
-  }
-  .top-bar h1 {
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .top-bar p { font-size: 12px; color: var(--text3); margin-top: 1px; }
-
-  .content {
-    flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-  }
-
-  .tab-bar {
-    flex-shrink: 0;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-    padding-bottom: var(--safe-bottom);
-  }
-  .tab-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    padding: 10px 4px;
-    border: none;
-    background: none;
-    color: var(--text3);
-    font-size: 10px;
-    font-family: inherit;
-    cursor: pointer;
-    transition: color 0.15s;
-  }
-  .tab-btn .icon { font-size: 22px; line-height: 1; }
-  .tab-btn.active { color: var(--accent); }
-  .tab-btn.active .icon { filter: drop-shadow(0 0 4px rgba(255,107,53,0.4)); }
-
-  .screen { display: none; padding: 14px 14px 20px; }
-  .screen.active { display: block; }
-
-  /* SEARCH */
-  .search-wrap { position: relative; margin-bottom: 10px; }
-  .search-wrap input {
-    width: 100%;
-    height: 44px;
-    border-radius: var(--radius);
-    border: 1.5px solid var(--border);
-    background: var(--card);
-    padding: 0 14px 0 40px;
-    font-size: 15px;
-    color: var(--text);
-    font-family: inherit;
-    -webkit-appearance: none;
-  }
-  .search-wrap input:focus { outline: none; border-color: var(--accent); }
-  .search-wrap input::placeholder { color: var(--text3); }
-  .search-icon {
-    position: absolute;
-    left: 13px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 16px;
-    color: var(--text3);
-    pointer-events: none;
-  }
-
-  /* CHIPS */
-  .chips {
-    display: flex;
-    gap: 7px;
-    overflow-x: auto;
-    padding: 0 0 10px;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-  }
-  .chips::-webkit-scrollbar { display: none; }
-  .chip {
-    flex-shrink: 0;
-    padding: 6px 13px;
-    border-radius: 20px;
-    border: 1.5px solid var(--border);
-    background: none;
-    color: var(--text2);
-    font-size: 12px;
-    font-family: inherit;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .chip.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-    font-weight: 600;
-  }
-
-  /* FOOD CARDS */
-  .food-list { display: flex; flex-direction: column; gap: 8px; }
-  .food-row {
-    display: flex;
-    align-items: center;
-    background: var(--card);
-    border-radius: var(--radius);
-    padding: 12px 14px;
-    cursor: pointer;
-    border: 1.5px solid transparent;
-    transition: border-color 0.15s;
-    gap: 12px;
-  }
-  .food-row:active { background: #2e2e2e; }
-  .food-row.selected { border-color: var(--accent); }
-  .food-emoji { font-size: 26px; flex-shrink: 0; }
-  .food-info { flex: 1; min-width: 0; }
-  .food-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .food-cat { font-size: 11px; color: var(--text3); margin-top: 2px; }
-  .food-kcal { font-size: 13px; font-weight: 700; color: var(--accent); flex-shrink: 0; }
-
-  /* NUTRITION DETAIL CARD */
-  .detail-card {
-    background: var(--card);
-    border-radius: var(--radius);
-    padding: 16px;
-    margin-bottom: 12px;
-  }
-  .detail-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
-  .detail-title { font-size: 18px; font-weight: 700; }
-  .detail-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
-  .kcal-badge {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: #fff;
-    font-size: 13px;
-    font-weight: 700;
-    padding: 5px 12px;
-    border-radius: 20px;
-    flex-shrink: 0;
-  }
-
-  .macro-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 14px; }
-  .macro-tile {
-    background: var(--surface);
-    border-radius: var(--radius-sm);
-    padding: 10px 6px;
-    text-align: center;
-  }
-  .macro-val { font-size: 17px; font-weight: 700; }
-  .macro-lbl { font-size: 10px; color: var(--text3); margin-top: 2px; }
-
-  .bar-list { margin-bottom: 14px; }
-  .bar-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-  .bar-lbl { font-size: 11px; color: var(--text2); width: 54px; flex-shrink: 0; }
-  .bar-track { flex: 1; height: 6px; background: #333; border-radius: 3px; overflow: hidden; }
-  .bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
-  .bar-val { font-size: 11px; color: var(--text3); width: 38px; text-align: right; flex-shrink: 0; }
-
-  .micro-section-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
-  .micro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-  .micro-tile { background: var(--surface); border-radius: var(--radius-sm); padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; }
-  .micro-name { font-size: 11px; color: var(--text2); }
-  .micro-val { font-size: 12px; font-weight: 600; }
-
-  /* PLATE / TABLE */
-  .plate-food-list { max-height: 180px; overflow-y: auto; margin-bottom: 10px; }
-  .plate-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    background: var(--card);
-    border-radius: var(--radius-sm);
-    margin-bottom: 6px;
-  }
-  .plate-name { flex: 1; font-size: 13px; font-weight: 500; }
-  .plate-kcal { font-size: 11px; color: var(--accent); }
-  .plate-rm { border: none; background: none; color: var(--text3); font-size: 18px; line-height: 1; cursor: pointer; padding: 2px; }
-
-  .total-strip {
-    background: linear-gradient(135deg, rgba(255,107,53,0.15), rgba(255,179,71,0.1));
-    border: 1.5px solid var(--accent);
-    border-radius: var(--radius);
-    padding: 12px 14px;
-    margin-bottom: 12px;
-  }
-  .total-strip-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .total-label { font-size: 12px; font-weight: 600; color: var(--text2); }
-  .total-kcal { font-size: 22px; font-weight: 800; color: var(--accent); }
-  .total-macros { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; }
-  .total-m { text-align: center; }
-  .total-mv { font-size: 14px; font-weight: 700; }
-  .total-ml { font-size: 10px; color: var(--text3); margin-top: 1px; }
-
-  /* CUSTOM TABLE */
-  .dd-wrap { position: relative; margin-bottom: 8px; }
-  .dd-list {
-    background: var(--card);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    max-height: 220px;
-    overflow-y: auto;
-    display: none;
-    position: relative;
-    z-index: 10;
-    margin-top: 4px;
-  }
-  .dd-list.open { display: block; }
-  .dd-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 11px 14px;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-  }
-  .dd-item:last-child { border-bottom: none; }
-  .dd-item:active { background: #2e2e2e; }
-  .dd-iname { font-size: 13px; font-weight: 500; }
-  .dd-imeta { font-size: 11px; color: var(--text3); margin-top: 2px; }
-  .dd-kcal { font-size: 12px; color: var(--accent); font-weight: 600; flex-shrink: 0; }
-
-  .tbl-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--radius); border: 1.5px solid var(--border); margin-bottom: 10px; }
-  table.ctbl { border-collapse: collapse; font-size: 11px; min-width: 640px; width: 100%; }
-  table.ctbl th {
-    padding: 8px 10px;
-    text-align: right;
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--text3);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    white-space: nowrap;
-  }
-  table.ctbl th:first-child { text-align: left; min-width: 110px; position: sticky; left: 0; z-index: 2; }
-  table.ctbl td { padding: 9px 10px; text-align: right; border-bottom: 1px solid #2a2a2a; color: var(--text); }
-  table.ctbl td:first-child { text-align: left; font-weight: 600; position: sticky; left: 0; background: var(--card); z-index: 1; font-size: 11px; }
-  table.ctbl tbody tr:last-child td { border-bottom: none; }
-  table.ctbl tr.tbl-total td { background: rgba(255,107,53,0.1); color: var(--text); font-weight: 700; border-top: 1.5px solid var(--accent); }
-  table.ctbl tr.tbl-total td:first-child { background: rgba(255,107,53,0.12); color: var(--accent); }
-  .qty-in {
-    width: 50px;
-    height: 26px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--surface);
-    color: var(--text);
-    font-size: 11px;
-    text-align: center;
-    font-family: inherit;
-    -webkit-appearance: none;
-  }
-  .qty-in:focus { outline: none; border-color: var(--accent); }
-  .rm-x { border: none; background: none; color: var(--text3); font-size: 16px; cursor: pointer; padding: 2px 4px; }
-
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--text3);
-  }
-  .empty-state .e-icon { font-size: 40px; margin-bottom: 10px; }
-  .empty-state p { font-size: 13px; line-height: 1.5; }
-
-  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-  .btn-sm {
-    height: 34px;
-    padding: 0 14px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-family: inherit;
-    cursor: pointer;
-  }
-  .btn-danger { background: none; border: 1.5px solid #555; color: var(--text2); }
-  .btn-accent { background: var(--accent); border: none; color: #fff; font-weight: 600; }
-
-  .no-results { text-align: center; padding: 20px; font-size: 13px; color: var(--text3); }
-
-  /* install banner */
-  #installBanner {
-    display: none;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: #fff;
-    padding: 10px 14px;
-    font-size: 12px;
-    font-weight: 600;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-  }
-  #installBanner.show { display: flex; }
-  #installBanner span { flex: 1; }
-  #installBanner button { background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-family: inherit; cursor: pointer; }
+:root{
+  --bg:#111;--surface:#1e1e1e;--card:#272727;--border:#333;
+  --accent:#FF6B35;--accent2:#FFB347;--green:#4CAF7D;--blue:#5B9BD5;--red:#E05C5C;--purple:#A78BFA;
+  --text:#f0f0f0;--text2:#999;--text3:#666;
+  --radius:14px;--radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-serif;background:var(--bg);color:var(--text)}
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+.top-bar{flex-shrink:0;background:var(--bg);border-bottom:1px solid var(--border);padding:12px 16px 10px;padding-top:max(12px,env(safe-area-inset-top,12px))}
+.top-bar h1{font-size:21px;font-weight:700;letter-spacing:-.5px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.top-bar p{font-size:11px;color:var(--text3);margin-top:1px}
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.tab-bar{flex-shrink:0;display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tab-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:9px 4px;border:none;background:none;color:var(--text3);font-size:10px;font-family:inherit;cursor:pointer;transition:color .15s}
+.tab-btn .icon{font-size:21px;line-height:1}
+.tab-btn.active{color:var(--accent)}
+.screen{display:none;padding:12px 12px 24px}
+.screen.active{display:block}
+/* search */
+.search-wrap{position:relative;margin-bottom:8px}
+.search-wrap input{width:100%;height:42px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--card);padding:0 12px 0 38px;font-size:14px;color:var(--text);font-family:inherit;-webkit-appearance:none}
+.search-wrap input:focus{outline:none;border-color:var(--accent)}
+.search-wrap input::placeholder{color:var(--text3)}
+.s-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--text3);pointer-events:none}
+/* chips */
+.chips{display:flex;gap:6px;overflow-x:auto;padding:0 0 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:none;color:var(--text2);font-size:11px;font-family:inherit;white-space:nowrap;cursor:pointer;transition:all .15s}
+.chip.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+/* food rows */
+.food-list{display:flex;flex-direction:column;gap:7px}
+.food-row{display:flex;align-items:center;background:var(--card);border-radius:var(--radius);padding:11px 13px;cursor:pointer;border:1.5px solid transparent;transition:border-color .15s;gap:11px}
+.food-row:active{background:#2e2e2e}
+.food-row.selected{border-color:var(--accent)}
+.food-emoji{font-size:24px;flex-shrink:0}
+.food-info{flex:1;min-width:0}
+.food-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.food-cat{font-size:10px;color:var(--text3);margin-top:2px}
+.food-unit{font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0}
+/* detail */
+.detail-card{background:var(--card);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+.detail-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;gap:8px}
+.detail-title{font-size:17px;font-weight:700}
+.detail-sub{font-size:11px;color:var(--text3);margin-top:3px}
+.kcal-badge{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:12px;font-weight:700;padding:5px 11px;border-radius:20px;flex-shrink:0;white-space:nowrap}
+.benefit-box{background:rgba(76,175,125,0.1);border:1px solid rgba(76,175,125,0.3);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:12px}
+.benefit-title{font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.benefit-text{font-size:12px;color:#ccc;line-height:1.5}
+.macro-row{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px}
+.macro-tile{background:var(--surface);border-radius:var(--radius-sm);padding:9px 5px;text-align:center}
+.macro-val{font-size:16px;font-weight:700}
+.macro-lbl{font-size:10px;color:var(--text3);margin-top:2px}
+.bar-list{margin-bottom:12px}
+.bar-item{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.bar-lbl{font-size:11px;color:var(--text2);width:52px;flex-shrink:0}
+.bar-track{flex:1;height:5px;background:#333;border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .4s}
+.bar-val{font-size:11px;color:var(--text3);width:36px;text-align:right;flex-shrink:0}
+.micro-title{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.micro-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.micro-tile{background:var(--surface);border-radius:var(--radius-sm);padding:7px 9px;display:flex;justify-content:space-between;align-items:center}
+.micro-name{font-size:11px;color:var(--text2)}
+.micro-val{font-size:11px;font-weight:600}
+/* plate */
+.total-strip{background:linear-gradient(135deg,rgba(255,107,53,.15),rgba(255,179,71,.1));border:1.5px solid var(--accent);border-radius:var(--radius);padding:12px 14px;margin-bottom:10px}
+.total-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.total-lbl{font-size:11px;font-weight:600;color:var(--text2)}
+.total-kcal{font-size:21px;font-weight:800;color:var(--accent)}
+.total-macros{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.total-m{text-align:center}
+.total-mv{font-size:13px;font-weight:700}
+.total-ml{font-size:9px;color:var(--text3);margin-top:1px}
+.plate-row{display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--card);border-radius:var(--radius-sm);margin-bottom:5px}
+.plate-name{flex:1;font-size:12px;font-weight:500}
+.plate-unit-info{font-size:10px;color:var(--text3)}
+.plate-kcal{font-size:11px;color:var(--accent)}
+.plate-rm{border:none;background:none;color:var(--text3);font-size:17px;line-height:1;cursor:pointer;padding:2px}
+/* table */
+.dd-wrap{position:relative;margin-bottom:6px}
+.dd-list{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);max-height:200px;overflow-y:auto;display:none;margin-top:4px;z-index:10}
+.dd-list.open{display:block}
+.dd-item{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;border-bottom:1px solid var(--border);cursor:pointer}
+.dd-item:last-child{border-bottom:none}
+.dd-item:active{background:#2e2e2e}
+.dd-iname{font-size:12px;font-weight:500}
+.dd-imeta{font-size:10px;color:var(--text3);margin-top:2px}
+.dd-kcal{font-size:11px;color:var(--accent);font-weight:600;flex-shrink:0}
+.tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius);border:1.5px solid var(--border);margin-bottom:10px}
+table.ctbl{border-collapse:collapse;font-size:11px;min-width:700px;width:100%}
+table.ctbl th{padding:8px 9px;text-align:right;font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;background:var(--surface);border-bottom:1px solid var(--border);white-space:nowrap}
+table.ctbl th:first-child{text-align:left;min-width:120px;position:sticky;left:0;z-index:2}
+table.ctbl td{padding:8px 9px;text-align:right;border-bottom:1px solid #2a2a2a;color:var(--text)}
+table.ctbl td:first-child{text-align:left;font-weight:600;position:sticky;left:0;background:var(--card);z-index:1;font-size:11px}
+table.ctbl tbody tr:last-child td{border-bottom:none}
+table.ctbl tr.tbl-total td{background:rgba(255,107,53,.1);font-weight:700;border-top:1.5px solid var(--accent)}
+table.ctbl tr.tbl-total td:first-child{background:rgba(255,107,53,.12);color:var(--accent)}
+.qty-in{width:52px;height:26px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:11px;text-align:center;font-family:inherit;-webkit-appearance:none}
+.qty-in:focus{outline:none;border-color:var(--accent)}
+.rm-x{border:none;background:none;color:var(--text3);font-size:15px;cursor:pointer;padding:2px 4px}
+/* misc */
+.empty-state{text-align:center;padding:36px 20px;color:var(--text3)}
+.empty-state .e-icon{font-size:38px;margin-bottom:9px}
+.empty-state p{font-size:12px;line-height:1.5}
+.btn-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.btn-sm{height:32px;padding:0 13px;border-radius:20px;font-size:12px;font-family:inherit;cursor:pointer}
+.btn-danger{background:none;border:1.5px solid #555;color:var(--text2)}
+.no-results{text-align:center;padding:18px;font-size:12px;color:var(--text3)}
+#installBanner{display:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:9px 13px;font-size:12px;font-weight:600;align-items:center;gap:10px;cursor:pointer}
+#installBanner.show{display:flex}
+#installBanner span{flex:1}
+#installBanner button{background:rgba(255,255,255,.2);border:none;color:#fff;padding:5px 11px;border-radius:20px;font-size:11px;font-family:inherit;cursor:pointer}
+.unit-tag{display:inline-block;font-size:10px;background:rgba(255,107,53,.15);color:var(--accent);border-radius:4px;padding:1px 5px;margin-left:4px;vertical-align:middle}
 </style>
 </head>
 <body>
-
 <div id="app">
-  <!-- HEADER -->
   <div class="top-bar">
     <h1>🍛 NutriIndia</h1>
-    <p>100+ Indian foods · full nutrition data</p>
+    <p>150+ foods · liquids in ml · eggs by count · fruits & superfoods · all vegetables</p>
   </div>
-
-  <!-- INSTALL BANNER -->
   <div id="installBanner">
     <span>📲 Add to Home Screen for quick access</span>
     <button id="installBtn">Install</button>
-    <button onclick="document.getElementById('installBanner').classList.remove('show')" style="background:rgba(0,0,0,0.2)">✕</button>
+    <button onclick="document.getElementById('installBanner').classList.remove('show')" style="background:rgba(0,0,0,.2)">✕</button>
   </div>
-
-  <!-- CONTENT -->
   <div class="content" id="content">
-
-    <!-- SINGLE FOOD -->
     <div class="screen active" id="s-single">
-      <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <input type="search" id="s1-search" placeholder="Search roti, egg, paneer, biryani…" oninput="renderSingle()" autocomplete="off"/>
-      </div>
+      <div class="search-wrap"><span class="s-icon">🔍</span><input type="search" id="s1-search" placeholder="Search roti, egg, mango, spinach…" oninput="renderSingle()" autocomplete="off"/></div>
       <div class="chips" id="s1-chips"></div>
       <div id="s1-detail"></div>
       <div class="food-list" id="s1-list"></div>
     </div>
-
-    <!-- MY PLATE -->
     <div class="screen" id="s-plate">
-      <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <input type="search" id="s2-search" placeholder="Search to add food…" oninput="renderPlateSearch()" autocomplete="off"/>
-      </div>
-      <div class="food-list" id="s2-search-list" style="max-height:200px;overflow-y:auto;margin-bottom:10px"></div>
+      <div class="search-wrap"><span class="s-icon">🔍</span><input type="search" id="s2-search" placeholder="Search to add food…" oninput="renderPlateSearch()" autocomplete="off"/></div>
+      <div class="food-list" id="s2-search-list" style="max-height:190px;overflow-y:auto;margin-bottom:10px"></div>
       <div id="s2-plate"></div>
     </div>
-
-    <!-- CUSTOM TABLE -->
     <div class="screen" id="s-table">
       <div class="dd-wrap">
-        <div class="search-wrap">
-          <span class="search-icon">➕</span>
-          <input type="search" id="s3-search" placeholder="Search to add food to table…" oninput="renderTblSearch()" onfocus="openTblDd()" autocomplete="off"/>
-        </div>
+        <div class="search-wrap"><span class="s-icon">➕</span><input type="search" id="s3-search" placeholder="Search to add food to table…" oninput="renderTblSearch()" onfocus="openTblDd()" autocomplete="off"/></div>
         <div class="dd-list" id="s3-dd"></div>
       </div>
       <div id="s3-table"></div>
     </div>
-
   </div>
-
-  <!-- TAB BAR -->
   <div class="tab-bar">
-    <button class="tab-btn active" onclick="switchTab('single',this)" aria-label="Single food lookup">
-      <span class="icon">🔍</span>
-      <span>Search</span>
-    </button>
-    <button class="tab-btn" onclick="switchTab('plate',this)" aria-label="My plate meal tracker">
-      <span class="icon">🍽️</span>
-      <span>My Plate</span>
-    </button>
-    <button class="tab-btn" onclick="switchTab('table',this)" aria-label="Custom nutrition table">
-      <span class="icon">📊</span>
-      <span>Table</span>
-    </button>
+    <button class="tab-btn active" onclick="switchTab('single',this)"><span class="icon">🔍</span><span>Search</span></button>
+    <button class="tab-btn" onclick="switchTab('plate',this)"><span class="icon">🍽️</span><span>My Plate</span></button>
+    <button class="tab-btn" onclick="switchTab('table',this)"><span class="icon">📊</span><span>Table</span></button>
   </div>
 </div>
 
 <script>
-// ─── DATA ────────────────────────────────────────────────────────────────────
-const EMOJIS = {
-  Breakfast:'🥞',Rice:'🍚',Dal:'🫘',Paneer:'🧀',Egg:'🥚',Chicken:'🍗',
-  Veggie:'🥦',Bread:'🫓',Snacks:'🥨',Dairy:'🥛',Sweets:'🍮',Fish:'🐟',
-  Mutton:'🥩',Drinks:'🥤',Sides:'🫙'
-};
+// unit types: 'g' = grams, 'ml' = millilitres, 'egg' = per egg, 'piece' = per piece
+// For eggs: cal/prot etc are PER 1 EGG (not per 100g)
+// For liquids: per 100ml
+// For solids: per 100g
 
-const FOODS=[
-  {name:"Idli",cat:"Breakfast",cal:58,prot:2,carb:12,fat:0.1,fiber:0.5,sugar:0,sodium:142,iron:0.3,calcium:6,vit_c:0,vit_a:0,potassium:54},
-  {name:"Dosa (plain)",cat:"Breakfast",cal:168,prot:3.9,carb:24,fat:6,fiber:1,sugar:0.5,sodium:135,iron:0.7,calcium:18,vit_c:0,vit_a:0,potassium:89},
-  {name:"Masala Dosa",cat:"Breakfast",cal:206,prot:4.5,carb:30,fat:8.5,fiber:1.8,sugar:1,sodium:310,iron:1.1,calcium:24,vit_c:4,vit_a:22,potassium:130},
-  {name:"Upma",cat:"Breakfast",cal:112,prot:3,carb:17,fat:3.5,fiber:1.5,sugar:0.5,sodium:180,iron:0.8,calcium:14,vit_c:1,vit_a:8,potassium:95},
-  {name:"Poha",cat:"Breakfast",cal:130,prot:2.5,carb:28,fat:2,fiber:1.2,sugar:1,sodium:160,iron:1.2,calcium:12,vit_c:3,vit_a:5,potassium:80},
-  {name:"Paratha (plain)",cat:"Breakfast",cal:260,prot:5.6,carb:37,fat:10,fiber:2.5,sugar:0.5,sodium:300,iron:1.5,calcium:30,vit_c:0,vit_a:0,potassium:110},
-  {name:"Aloo Paratha",cat:"Breakfast",cal:302,prot:6.5,carb:44,fat:11.5,fiber:3,sugar:1,sodium:380,iron:1.8,calcium:35,vit_c:6,vit_a:12,potassium:220},
-  {name:"Medu Vada",cat:"Breakfast",cal:210,prot:7,carb:22,fat:10,fiber:2,sugar:0,sodium:230,iron:2,calcium:40,vit_c:0,vit_a:0,potassium:140},
-  {name:"Rava Idli",cat:"Breakfast",cal:130,prot:4,carb:22,fat:4,fiber:1,sugar:0.5,sodium:220,iron:0.8,calcium:20,vit_c:0,vit_a:0,potassium:75},
-  {name:"Pesarattu",cat:"Breakfast",cal:148,prot:8,carb:20,fat:3.5,fiber:3,sugar:0.5,sodium:200,iron:2.5,calcium:35,vit_c:2,vit_a:5,potassium:180},
-  {name:"Steamed Rice",cat:"Rice",cal:130,prot:2.7,carb:28,fat:0.3,fiber:0.4,sugar:0,sodium:1,iron:0.2,calcium:10,vit_c:0,vit_a:0,potassium:35},
-  {name:"Jeera Rice",cat:"Rice",cal:148,prot:3,carb:29,fat:3,fiber:0.5,sugar:0,sodium:120,iron:0.5,calcium:12,vit_c:0,vit_a:0,potassium:40},
-  {name:"Biryani (Chicken)",cat:"Rice",cal:240,prot:14,carb:30,fat:7,fiber:1,sugar:1,sodium:540,iron:1.5,calcium:28,vit_c:2,vit_a:40,potassium:220},
-  {name:"Biryani (Veg)",cat:"Rice",cal:198,prot:5,carb:34,fat:5,fiber:2.5,sugar:1,sodium:400,iron:1.2,calcium:40,vit_c:5,vit_a:60,potassium:190},
-  {name:"Lemon Rice",cat:"Rice",cal:172,prot:3.5,carb:30,fat:5,fiber:0.8,sugar:0.5,sodium:220,iron:0.6,calcium:15,vit_c:8,vit_a:5,potassium:80},
-  {name:"Curd Rice",cat:"Rice",cal:145,prot:4,carb:26,fat:3.5,fiber:0.3,sugar:2,sodium:95,iron:0.2,calcium:95,vit_c:0,vit_a:30,potassium:120},
-  {name:"Khichdi",cat:"Rice",cal:155,prot:6,carb:27,fat:3,fiber:2,sugar:0.5,sodium:180,iron:1.5,calcium:30,vit_c:0,vit_a:10,potassium:160},
-  {name:"Dal Tadka",cat:"Dal",cal:116,prot:7.5,carb:16,fat:3,fiber:4,sugar:1,sodium:290,iron:2.5,calcium:45,vit_c:3,vit_a:15,potassium:300},
-  {name:"Dal Makhani",cat:"Dal",cal:152,prot:8,carb:18,fat:5.5,fiber:5,sugar:1.5,sodium:380,iron:3,calcium:60,vit_c:2,vit_a:20,potassium:340},
-  {name:"Chana Dal",cat:"Dal",cal:164,prot:9,carb:24,fat:3,fiber:6,sugar:1,sodium:250,iron:3.2,calcium:55,vit_c:1,vit_a:8,potassium:380},
-  {name:"Sambar",cat:"Dal",cal:78,prot:4.5,carb:12,fat:2,fiber:3,sugar:2,sodium:340,iron:1.8,calcium:42,vit_c:18,vit_a:35,potassium:280},
-  {name:"Rajma",cat:"Dal",cal:142,prot:8.5,carb:20,fat:2.5,fiber:6,sugar:1.5,sodium:310,iron:2.8,calcium:65,vit_c:4,vit_a:10,potassium:380},
-  {name:"Moong Dal",cat:"Dal",cal:105,prot:7,carb:15,fat:1,fiber:4,sugar:0.5,sodium:200,iron:2,calcium:40,vit_c:1,vit_a:5,potassium:270},
-  {name:"Chhole (Chole)",cat:"Dal",cal:180,prot:10,carb:26,fat:4.5,fiber:7,sugar:2,sodium:420,iron:3.5,calcium:70,vit_c:6,vit_a:12,potassium:420},
-  {name:"Paneer",cat:"Paneer",cal:265,prot:18,carb:3,fat:20,fiber:0,sugar:3,sodium:30,iron:0.5,calcium:480,vit_c:0,vit_a:80,potassium:90},
-  {name:"Palak Paneer",cat:"Paneer",cal:205,prot:12,carb:8,fat:14,fiber:2.5,sugar:2,sodium:380,iron:3.5,calcium:350,vit_c:28,vit_a:600,potassium:310},
-  {name:"Paneer Butter Masala",cat:"Paneer",cal:290,prot:13,carb:14,fat:21,fiber:1.5,sugar:5,sodium:480,iron:1.5,calcium:320,vit_c:12,vit_a:180,potassium:290},
-  {name:"Shahi Paneer",cat:"Paneer",cal:320,prot:12,carb:16,fat:24,fiber:1,sugar:6,sodium:420,iron:1.2,calcium:300,vit_c:8,vit_a:140,potassium:240},
-  {name:"Paneer Tikka",cat:"Paneer",cal:255,prot:16,carb:6,fat:19,fiber:1,sugar:2,sodium:480,iron:1,calcium:420,vit_c:10,vit_a:120,potassium:180},
-  {name:"Kadai Paneer",cat:"Paneer",cal:275,prot:14,carb:12,fat:20,fiber:2,sugar:3,sodium:460,iron:1.5,calcium:370,vit_c:22,vit_a:200,potassium:310},
-  {name:"Matar Paneer",cat:"Paneer",cal:220,prot:12,carb:14,fat:14,fiber:3,sugar:3,sodium:380,iron:2.2,calcium:280,vit_c:20,vit_a:80,potassium:290},
-  {name:"Boiled Egg",cat:"Egg",cal:155,prot:13,carb:1.1,fat:11,fiber:0,sugar:1.1,sodium:124,iron:1.2,calcium:50,vit_c:0,vit_a:160,potassium:126},
-  {name:"Egg Bhurji",cat:"Egg",cal:178,prot:11,carb:4,fat:13,fiber:0.5,sugar:1,sodium:320,iron:1.5,calcium:55,vit_c:8,vit_a:200,potassium:180},
-  {name:"Egg Curry",cat:"Egg",cal:185,prot:12,carb:6,fat:12.5,fiber:1,sugar:2,sodium:380,iron:2,calcium:60,vit_c:12,vit_a:180,potassium:220},
-  {name:"Masala Omelette",cat:"Egg",cal:190,prot:12,carb:3.5,fat:14,fiber:0.5,sugar:1,sodium:400,iron:1.4,calcium:55,vit_c:10,vit_a:190,potassium:170},
-  {name:"Anda Paratha",cat:"Egg",cal:278,prot:13,carb:30,fat:12,fiber:2,sugar:0.5,sodium:420,iron:2.2,calcium:60,vit_c:2,vit_a:100,potassium:190},
-  {name:"Chicken Curry",cat:"Chicken",cal:215,prot:22,carb:4,fat:12,fiber:1,sugar:2,sodium:480,iron:1.8,calcium:30,vit_c:8,vit_a:50,potassium:380},
-  {name:"Butter Chicken",cat:"Chicken",cal:250,prot:20,carb:10,fat:15,fiber:1,sugar:4,sodium:520,iron:1.5,calcium:40,vit_c:10,vit_a:90,potassium:350},
-  {name:"Tandoori Chicken",cat:"Chicken",cal:190,prot:28,carb:3,fat:7,fiber:0.5,sugar:1,sodium:560,iron:1.6,calcium:25,vit_c:4,vit_a:60,potassium:400},
-  {name:"Chicken Tikka Masala",cat:"Chicken",cal:235,prot:21,carb:9,fat:13,fiber:1,sugar:3,sodium:500,iron:1.7,calcium:35,vit_c:12,vit_a:80,potassium:360},
-  {name:"Keema (Chicken)",cat:"Chicken",cal:220,prot:20,carb:5,fat:13,fiber:1.5,sugar:2,sodium:440,iron:2.2,calcium:28,vit_c:6,vit_a:40,potassium:320},
-  {name:"Aloo Gobhi",cat:"Veggie",cal:120,prot:3.5,carb:18,fat:4.5,fiber:3,sugar:2,sodium:310,iron:1,calcium:35,vit_c:40,vit_a:8,potassium:280},
-  {name:"Baingan Bharta",cat:"Veggie",cal:95,prot:2.5,carb:12,fat:4,fiber:3.5,sugar:4,sodium:330,iron:0.8,calcium:20,vit_c:10,vit_a:15,potassium:320},
-  {name:"Bhindi Masala",cat:"Veggie",cal:105,prot:2,carb:14,fat:4.5,fiber:3,sugar:2,sodium:290,iron:0.7,calcium:82,vit_c:23,vit_a:36,potassium:300},
-  {name:"Jeera Aloo",cat:"Veggie",cal:148,prot:3,carb:25,fat:5,fiber:2.5,sugar:1,sodium:260,iron:0.8,calcium:18,vit_c:18,vit_a:5,potassium:420},
-  {name:"Palak (Spinach)",cat:"Veggie",cal:72,prot:4,carb:6,fat:3.5,fiber:3,sugar:1,sodium:310,iron:4,calcium:120,vit_c:35,vit_a:800,potassium:360},
-  {name:"Roti (Chapati)",cat:"Bread",cal:104,prot:3.5,carb:20,fat:1,fiber:2,sugar:0,sodium:80,iron:1.2,calcium:16,vit_c:0,vit_a:0,potassium:100},
-  {name:"Puri",cat:"Bread",cal:250,prot:5,carb:35,fat:11,fiber:2,sugar:0.5,sodium:180,iron:1.5,calcium:20,vit_c:0,vit_a:0,potassium:90},
-  {name:"Naan",cat:"Bread",cal:310,prot:8,carb:52,fat:7,fiber:2.5,sugar:3,sodium:480,iron:2,calcium:35,vit_c:0,vit_a:0,potassium:120},
-  {name:"Butter Naan",cat:"Bread",cal:370,prot:8,carb:52,fat:14,fiber:2.5,sugar:3,sodium:540,iron:2,calcium:35,vit_c:0,vit_a:10,potassium:120},
-  {name:"Missi Roti",cat:"Bread",cal:145,prot:5.5,carb:25,fat:3.5,fiber:3.5,sugar:0.5,sodium:240,iron:1.8,calcium:35,vit_c:0,vit_a:5,potassium:140},
-  {name:"Samosa",cat:"Snacks",cal:308,prot:5,carb:42,fat:14,fiber:2.5,sugar:1,sodium:460,iron:1.5,calcium:25,vit_c:8,vit_a:10,potassium:200},
-  {name:"Pakora (Vegetable)",cat:"Snacks",cal:290,prot:6,carb:32,fat:16,fiber:2.5,sugar:1,sodium:380,iron:1.2,calcium:30,vit_c:10,vit_a:20,potassium:180},
-  {name:"Pani Puri",cat:"Snacks",cal:180,prot:3,carb:30,fat:6,fiber:2,sugar:2,sodium:420,iron:1,calcium:15,vit_c:5,vit_a:5,potassium:120},
-  {name:"Bhel Puri",cat:"Snacks",cal:220,prot:4.5,carb:38,fat:6,fiber:2,sugar:4,sodium:480,iron:1.2,calcium:25,vit_c:8,vit_a:15,potassium:150},
-  {name:"Vada Pav",cat:"Snacks",cal:298,prot:6,carb:44,fat:11,fiber:2.5,sugar:2,sodium:540,iron:1.5,calcium:40,vit_c:10,vit_a:10,potassium:220},
-  {name:"Dhokla",cat:"Snacks",cal:145,prot:6,carb:25,fat:2,fiber:1.5,sugar:3,sodium:380,iron:1,calcium:45,vit_c:0,vit_a:0,potassium:100},
-  {name:"Pav Bhaji",cat:"Snacks",cal:180,prot:5,carb:28,fat:6,fiber:3.5,sugar:4,sodium:520,iron:1.5,calcium:50,vit_c:30,vit_a:80,potassium:360},
-  {name:"Dahi (Curd)",cat:"Dairy",cal:60,prot:3.5,carb:4,fat:3.5,fiber:0,sugar:4,sodium:46,iron:0.1,calcium:120,vit_c:0,vit_a:30,potassium:155},
-  {name:"Lassi (Sweet)",cat:"Dairy",cal:95,prot:4,carb:12,fat:3.5,fiber:0,sugar:11,sodium:55,iron:0.1,calcium:130,vit_c:0,vit_a:35,potassium:165},
-  {name:"Buttermilk (Chaas)",cat:"Dairy",cal:40,prot:3,carb:5,fat:1,fiber:0,sugar:4.5,sodium:105,iron:0.1,calcium:100,vit_c:0,vit_a:20,potassium:140},
-  {name:"Ghee",cat:"Dairy",cal:898,prot:0,carb:0,fat:100,fiber:0,sugar:0,sodium:2,iron:0,calcium:0,vit_c:0,vit_a:0,potassium:5},
-  {name:"Milk (full fat)",cat:"Dairy",cal:65,prot:3.2,carb:4.8,fat:3.8,fiber:0,sugar:4.8,sodium:44,iron:0.1,calcium:113,vit_c:0,vit_a:46,potassium:150},
-  {name:"Gulab Jamun",cat:"Sweets",cal:380,prot:6,carb:55,fat:16,fiber:0.5,sugar:45,sodium:120,iron:0.5,calcium:80,vit_c:0,vit_a:20,potassium:110},
-  {name:"Jalebi",cat:"Sweets",cal:400,prot:2,carb:72,fat:12,fiber:0.5,sugar:65,sodium:100,iron:0.5,calcium:20,vit_c:0,vit_a:0,potassium:50},
-  {name:"Halwa (Suji)",cat:"Sweets",cal:310,prot:5,carb:45,fat:13,fiber:1,sugar:28,sodium:90,iron:1.2,calcium:30,vit_c:0,vit_a:20,potassium:100},
-  {name:"Ladoo (Besan)",cat:"Sweets",cal:450,prot:8,carb:58,fat:22,fiber:2,sugar:38,sodium:85,iron:2,calcium:60,vit_c:0,vit_a:0,potassium:120},
-  {name:"Fish Curry",cat:"Fish",cal:142,prot:18,carb:4,fat:6,fiber:1,sugar:1.5,sodium:520,iron:1.2,calcium:35,vit_c:8,vit_a:40,potassium:380},
-  {name:"Prawn Masala",cat:"Fish",cal:165,prot:22,carb:5,fat:6.5,fiber:1,sugar:2,sodium:560,iron:2.5,calcium:80,vit_c:10,vit_a:60,potassium:340},
-  {name:"Mutton Curry",cat:"Mutton",cal:258,prot:22,carb:5,fat:17,fiber:1,sugar:2,sodium:520,iron:3.2,calcium:30,vit_c:5,vit_a:30,potassium:340},
-  {name:"Rogan Josh",cat:"Mutton",cal:270,prot:23,carb:6,fat:17,fiber:1.5,sugar:2,sodium:540,iron:3.5,calcium:35,vit_c:4,vit_a:25,potassium:360},
-  {name:"Seekh Kebab",cat:"Mutton",cal:230,prot:22,carb:4,fat:14,fiber:1,sugar:1,sodium:480,iron:3,calcium:25,vit_c:3,vit_a:20,potassium:310},
-  {name:"Masala Chai",cat:"Drinks",cal:55,prot:1.5,carb:8,fat:2,fiber:0,sugar:7,sodium:20,iron:0.1,calcium:55,vit_c:0,vit_a:20,potassium:80},
-  {name:"Mango Lassi",cat:"Drinks",cal:120,prot:3.5,carb:22,fat:2.5,fiber:0.5,sugar:20,sodium:50,iron:0.3,calcium:110,vit_c:18,vit_a:110,potassium:200},
-  {name:"Coconut Water",cat:"Drinks",cal:19,prot:0.7,carb:3.7,fat:0.2,fiber:1,sugar:2.6,sodium:105,iron:0.3,calcium:24,vit_c:2.4,vit_a:0,potassium:250},
-  {name:"Nimbu Pani",cat:"Drinks",cal:30,prot:0.3,carb:8,fat:0.1,fiber:0,sugar:7,sodium:180,iron:0.1,calcium:8,vit_c:18,vit_a:0,potassium:50},
-  {name:"Raita",cat:"Sides",cal:62,prot:3,carb:6,fat:2.5,fiber:0.5,sugar:5,sodium:120,iron:0.2,calcium:110,vit_c:3,vit_a:25,potassium:175},
-  {name:"Papad",cat:"Sides",cal:350,prot:22,carb:52,fat:4,fiber:6,sugar:0,sodium:1500,iron:5,calcium:100,vit_c:0,vit_a:0,potassium:350},
-  {name:"Chutney (Mint)",cat:"Sides",cal:45,prot:1.5,carb:7,fat:1,fiber:2,sugar:2,sodium:280,iron:1.5,calcium:30,vit_c:20,vit_a:80,potassium:120},
+const FOODS = [
+// ── BREAKFAST ──────────────────────────────────────────────────────────────
+{name:"Idli",cat:"Breakfast",emoji:"🫓",unit:"g",cal:58,prot:2,carb:12,fat:0.1,fiber:0.5,sugar:0,sodium:142,iron:0.3,calcium:6,vit_c:0,vit_a:0,potassium:54,benefit:"Easy to digest, low-fat, fermented — good for gut health. Rich in complex carbs for sustained energy."},
+{name:"Dosa (plain)",cat:"Breakfast",emoji:"🫓",unit:"g",cal:168,prot:3.9,carb:24,fat:6,fiber:1,sugar:0.5,sodium:135,iron:0.7,calcium:18,vit_c:0,vit_a:0,potassium:89,benefit:"Fermented food that aids digestion. Good source of B vitamins. Light on the stomach."},
+{name:"Masala Dosa",cat:"Breakfast",emoji:"🫓",unit:"g",cal:206,prot:4.5,carb:30,fat:8.5,fiber:1.8,sugar:1,sodium:310,iron:1.1,calcium:24,vit_c:4,vit_a:22,potassium:130,benefit:"Potato filling adds potassium and Vitamin B6. Fermented batter provides probiotics for gut health."},
+{name:"Upma",cat:"Breakfast",emoji:"🍲",unit:"g",cal:112,prot:3,carb:17,fat:3.5,fiber:1.5,sugar:0.5,sodium:180,iron:0.8,calcium:14,vit_c:1,vit_a:8,potassium:95,benefit:"Semolina is rich in iron and B vitamins. Low glycemic index keeps you full longer."},
+{name:"Poha",cat:"Breakfast",emoji:"🍲",unit:"g",cal:130,prot:2.5,carb:28,fat:2,fiber:1.2,sugar:1,sodium:160,iron:1.2,calcium:12,vit_c:3,vit_a:5,potassium:80,benefit:"Flattened rice is easy to digest, low fat, and a good iron source. Light yet filling breakfast."},
+{name:"Paratha (plain)",cat:"Breakfast",emoji:"🫓",unit:"g",cal:260,prot:5.6,carb:37,fat:10,fiber:2.5,sugar:0.5,sodium:300,iron:1.5,calcium:30,vit_c:0,vit_a:0,potassium:110,benefit:"Whole wheat provides fiber, B vitamins and sustained energy. Good pre-workout meal."},
+{name:"Aloo Paratha",cat:"Breakfast",emoji:"🫓",unit:"g",cal:302,prot:6.5,carb:44,fat:11.5,fiber:3,sugar:1,sodium:380,iron:1.8,calcium:35,vit_c:6,vit_a:12,potassium:220,benefit:"Potato adds potassium and Vitamin C. Whole wheat gives fiber. High energy meal for active mornings."},
+{name:"Medu Vada",cat:"Breakfast",emoji:"🍩",unit:"g",cal:210,prot:7,carb:22,fat:10,fiber:2,sugar:0,sodium:230,iron:2,calcium:40,vit_c:0,vit_a:0,potassium:140,benefit:"Urad dal (black lentil) is high in protein and iron. Good source of B vitamins and calcium."},
+{name:"Rava Idli",cat:"Breakfast",emoji:"🫓",unit:"g",cal:130,prot:4,carb:22,fat:4,fiber:1,sugar:0.5,sodium:220,iron:0.8,calcium:20,vit_c:0,vit_a:0,potassium:75,benefit:"Semolina based — provides iron, protein and B vitamins. Light and easily digestible."},
+{name:"Pesarattu",cat:"Breakfast",emoji:"🫓",unit:"g",cal:148,prot:8,carb:20,fat:3.5,fiber:3,sugar:0.5,sodium:200,iron:2.5,calcium:35,vit_c:2,vit_a:5,potassium:180,benefit:"Green moong dosa — excellent plant protein, high fiber, low fat. Ideal for weight management."},
+
+// ── EGGS (per egg) ──────────────────────────────────────────────────────────
+{name:"Whole Egg (boiled)",cat:"Eggs",emoji:"🥚",unit:"egg",unitLabel:"per egg",cal:72,prot:6.3,carb:0.6,fat:5,fiber:0,sugar:0.6,sodium:71,iron:0.9,calcium:28,vit_c:0,vit_a:80,potassium:69,benefit:"Complete protein with all 9 essential amino acids. Rich in choline for brain health, Vitamin D, B12, and selenium. Yolk contains lutein for eye health."},
+{name:"Egg White (boiled)",cat:"Eggs",emoji:"🥚",unit:"egg",unitLabel:"per egg white",cal:17,prot:3.6,carb:0.2,fat:0.1,fiber:0,sugar:0.2,sodium:55,iron:0.03,calcium:2,vit_c:0,vit_a:0,potassium:54,benefit:"Pure lean protein with almost zero fat. Ideal for muscle building. Contains riboflavin and selenium."},
+{name:"Egg Yolk",cat:"Eggs",emoji:"🥚",unit:"egg",unitLabel:"per yolk",cal:55,prot:2.7,carb:0.6,fat:4.5,fiber:0,sugar:0.1,sodium:8,iron:0.9,calcium:22,vit_c:0,vit_a:80,potassium:19,benefit:"Dense in nutrients — Vitamin A, D, E, K, B12, folate, choline, and healthy fats. Supports hormone production and brain function."},
+{name:"Egg Bhurji",cat:"Eggs",emoji:"🍳",unit:"egg",unitLabel:"per egg (cooked)",cal:90,prot:6,carb:2,fat:6.5,fiber:0.3,sugar:0.5,sodium:160,iron:0.9,calcium:30,vit_c:4,vit_a:100,potassium:100,benefit:"Scrambled with onion, tomato and spices — adds Vitamin C and lycopene to egg nutrition. High satiety, quick protein boost."},
+{name:"Masala Omelette",cat:"Eggs",emoji:"🍳",unit:"egg",unitLabel:"per egg (cooked)",cal:95,prot:6,carb:1.8,fat:7,fiber:0.3,sugar:0.5,sodium:200,iron:0.9,calcium:28,vit_c:5,vit_a:95,potassium:90,benefit:"Pan-cooked egg with vegetables adds antioxidants. Complete meal with protein, healthy fats, and micronutrients."},
+{name:"Egg Curry",cat:"Eggs",emoji:"🍳",unit:"egg",unitLabel:"per egg in curry",cal:120,prot:7,carb:4,fat:8,fiber:0.5,sugar:1,sodium:280,iron:1.2,calcium:35,vit_c:8,vit_a:100,potassium:130,benefit:"Egg in spiced gravy — turmeric adds anti-inflammatory curcumin. Good protein with added minerals from the curry base."},
+{name:"Anda Paratha",cat:"Eggs",emoji:"🫓",unit:"egg",unitLabel:"per egg stuffed",cal:180,prot:8,carb:18,fat:8,fiber:1,sugar:0.3,sodium:280,iron:1.4,calcium:35,vit_c:1,vit_a:60,potassium:120,benefit:"Complete meal — egg protein + whole wheat carbs. Provides sustained energy and keeps you full for hours."},
+
+// ── RICE ──────────────────────────────────────────────────────────────────
+{name:"Steamed Rice",cat:"Rice",emoji:"🍚",unit:"g",cal:130,prot:2.7,carb:28,fat:0.3,fiber:0.4,sugar:0,sodium:1,iron:0.2,calcium:10,vit_c:0,vit_a:0,potassium:35,benefit:"Primary energy source. Easily digestible, gluten-free. Good for gut recovery and instant energy."},
+{name:"Jeera Rice",cat:"Rice",emoji:"🍚",unit:"g",cal:148,prot:3,carb:29,fat:3,fiber:0.5,sugar:0,sodium:120,iron:0.5,calcium:12,vit_c:0,vit_a:0,potassium:40,benefit:"Cumin aids digestion, reduces bloating, and has anti-inflammatory properties. Aromatic and flavourful."},
+{name:"Biryani (Chicken)",cat:"Rice",emoji:"🍚",unit:"g",cal:240,prot:14,carb:30,fat:7,fiber:1,sugar:1,sodium:540,iron:1.5,calcium:28,vit_c:2,vit_a:40,potassium:220,benefit:"Complete meal with protein, carbs, and aromatic spices. Saffron adds antioxidants. Good for recovery meals."},
+{name:"Biryani (Veg)",cat:"Rice",emoji:"🍚",unit:"g",cal:198,prot:5,carb:34,fat:5,fiber:2.5,sugar:1,sodium:400,iron:1.2,calcium:40,vit_c:5,vit_a:60,potassium:190,benefit:"Vegetable biryani provides fiber, antioxidants from spices, and plant-based nutrition in a flavourful package."},
+{name:"Curd Rice",cat:"Rice",emoji:"🍚",unit:"g",cal:145,prot:4,carb:26,fat:3.5,fiber:0.3,sugar:2,sodium:95,iron:0.2,calcium:95,vit_c:0,vit_a:30,potassium:120,benefit:"Probiotic-rich curd aids digestion and gut health. Cooling food, ideal in summer. Good calcium source."},
+{name:"Khichdi",cat:"Rice",emoji:"🍲",unit:"g",cal:155,prot:6,carb:27,fat:3,fiber:2,sugar:0.5,sodium:180,iron:1.5,calcium:30,vit_c:0,vit_a:10,potassium:160,benefit:"Complete protein from rice+dal combination. Easily digestible, gentle on stomach. India's ultimate comfort and healing food."},
+
+// ── DAL & LENTILS ──────────────────────────────────────────────────────────
+{name:"Dal Tadka",cat:"Dal",emoji:"🫘",unit:"g",cal:116,prot:7.5,carb:16,fat:3,fiber:4,sugar:1,sodium:290,iron:2.5,calcium:45,vit_c:3,vit_a:15,potassium:300,benefit:"Toor dal high in protein and folate. Tempered spices add anti-inflammatory benefits. Great for vegetarians."},
+{name:"Dal Makhani",cat:"Dal",emoji:"🫘",unit:"g",cal:152,prot:8,carb:18,fat:5.5,fiber:5,sugar:1.5,sodium:380,iron:3,calcium:60,vit_c:2,vit_a:20,potassium:340,benefit:"Black lentils are rich in iron, antioxidants, and fiber. Slow-cooked for maximum nutrient retention."},
+{name:"Chana Dal",cat:"Dal",emoji:"🫘",unit:"g",cal:164,prot:9,carb:24,fat:3,fiber:6,sugar:1,sodium:250,iron:3.2,calcium:55,vit_c:1,vit_a:8,potassium:380,benefit:"High protein, high fiber lentil. Low glycemic index helps manage blood sugar. Good for heart health."},
+{name:"Sambar",cat:"Dal",emoji:"🍲",unit:"g",cal:78,prot:4.5,carb:12,fat:2,fiber:3,sugar:2,sodium:340,iron:1.8,calcium:42,vit_c:18,vit_a:35,potassium:280,benefit:"Tamarind provides Vitamin C and antioxidants. Mixed vegetables add micronutrients. Great digestive aid."},
+{name:"Rajma",cat:"Dal",emoji:"🫘",unit:"g",cal:142,prot:8.5,carb:20,fat:2.5,fiber:6,sugar:1.5,sodium:310,iron:2.8,calcium:65,vit_c:4,vit_a:10,potassium:380,benefit:"Kidney beans are excellent for heart health, blood sugar regulation, and iron. High protein vegetarian food."},
+{name:"Moong Dal",cat:"Dal",emoji:"🫘",unit:"g",cal:105,prot:7,carb:15,fat:1,fiber:4,sugar:0.5,sodium:200,iron:2,calcium:40,vit_c:1,vit_a:5,potassium:270,benefit:"Easiest lentil to digest. Rich in antioxidants, folate, and magnesium. Ideal for detox and weight loss."},
+{name:"Chhole (Chole)",cat:"Dal",emoji:"🫘",unit:"g",cal:180,prot:10,carb:26,fat:4.5,fiber:7,sugar:2,sodium:420,iron:3.5,calcium:70,vit_c:6,vit_a:12,potassium:420,benefit:"Chickpeas are a powerhouse — high protein, iron, folate, and fiber. Excellent for anemia and gut health."},
+
+// ── PANEER ────────────────────────────────────────────────────────────────
+{name:"Paneer (raw)",cat:"Paneer",emoji:"🧀",unit:"g",cal:265,prot:18,carb:3,fat:20,fiber:0,sugar:3,sodium:30,iron:0.5,calcium:480,vit_c:0,vit_a:80,potassium:90,benefit:"Highest calcium dairy food in India. Complete protein, great for bone health, muscle building, and kids' growth."},
+{name:"Palak Paneer",cat:"Paneer",emoji:"🧀",unit:"g",cal:205,prot:12,carb:8,fat:14,fiber:2.5,sugar:2,sodium:380,iron:3.5,calcium:350,vit_c:28,vit_a:600,potassium:310,benefit:"Iron from spinach + calcium from paneer = bone and blood health. Vitamin A for eyes. A nutritional powerhouse."},
+{name:"Paneer Butter Masala",cat:"Paneer",emoji:"🧀",unit:"g",cal:290,prot:13,carb:14,fat:21,fiber:1.5,sugar:5,sodium:480,iron:1.5,calcium:320,vit_c:12,vit_a:180,potassium:290,benefit:"Tomato base provides lycopene and Vitamin C. Paneer gives calcium and protein. Rich and satisfying."},
+{name:"Paneer Tikka",cat:"Paneer",emoji:"🧀",unit:"g",cal:255,prot:16,carb:6,fat:19,fiber:1,sugar:2,sodium:480,iron:1,calcium:420,vit_c:10,vit_a:120,potassium:180,benefit:"Grilled paneer retains full protein and calcium. Spice marinade adds anti-inflammatory benefits. High-protein snack."},
+
+// ── CHICKEN ──────────────────────────────────────────────────────────────
+{name:"Chicken Curry",cat:"Chicken",emoji:"🍗",unit:"g",cal:215,prot:22,carb:4,fat:12,fiber:1,sugar:2,sodium:480,iron:1.8,calcium:30,vit_c:8,vit_a:50,potassium:380,benefit:"High lean protein for muscle repair. Spices like turmeric and coriander add anti-inflammatory benefits."},
+{name:"Butter Chicken",cat:"Chicken",emoji:"🍗",unit:"g",cal:250,prot:20,carb:10,fat:15,fiber:1,sugar:4,sodium:520,iron:1.5,calcium:40,vit_c:10,vit_a:90,potassium:350,benefit:"Tomato-cream gravy adds lycopene and Vitamins A & C. Good protein source with a rich taste."},
+{name:"Tandoori Chicken",cat:"Chicken",emoji:"🍗",unit:"g",cal:190,prot:28,carb:3,fat:7,fiber:0.5,sugar:1,sodium:560,iron:1.6,calcium:25,vit_c:4,vit_a:60,potassium:400,benefit:"High protein, low carb. Grilling reduces fat. Yogurt marinade adds probiotics. Best for fitness goals."},
+{name:"Chicken Tikka Masala",cat:"Chicken",emoji:"🍗",unit:"g",cal:235,prot:21,carb:9,fat:13,fiber:1,sugar:3,sodium:500,iron:1.7,calcium:35,vit_c:12,vit_a:80,potassium:360,benefit:"Grilled chicken in spiced tomato gravy. High protein with antioxidants from the masala base."},
+
+// ── VEGETABLES ────────────────────────────────────────────────────────────
+{name:"Aloo Gobhi",cat:"Vegetables",emoji:"🥦",unit:"g",cal:120,prot:3.5,carb:18,fat:4.5,fiber:3,sugar:2,sodium:310,iron:1,calcium:35,vit_c:40,vit_a:8,potassium:280,benefit:"Cauliflower is a cruciferous vegetable rich in Vitamin C and choline. Potato adds potassium and B6."},
+{name:"Baingan Bharta",cat:"Vegetables",emoji:"🍆",unit:"g",cal:95,prot:2.5,carb:12,fat:4,fiber:3.5,sugar:4,sodium:330,iron:0.8,calcium:20,vit_c:10,vit_a:15,potassium:320,benefit:"Eggplant contains nasunin — a powerful brain antioxidant. Roasting enhances bioavailability of nutrients."},
+{name:"Bhindi Masala",cat:"Vegetables",emoji:"🫑",unit:"g",cal:105,prot:2,carb:14,fat:4.5,fiber:3,sugar:2,sodium:290,iron:0.7,calcium:82,vit_c:23,vit_a:36,potassium:300,benefit:"Okra is rich in folate, Vitamin K, and magnesium. Mucilage fiber helps control blood sugar levels."},
+{name:"Jeera Aloo",cat:"Vegetables",emoji:"🥔",unit:"g",cal:148,prot:3,carb:25,fat:5,fiber:2.5,sugar:1,sodium:260,iron:0.8,calcium:18,vit_c:18,vit_a:5,potassium:420,benefit:"Potatoes are high in potassium (more than banana), Vitamin C and B6. Cumin aids metabolism."},
+{name:"Palak Sabzi",cat:"Vegetables",emoji:"🥬",unit:"g",cal:72,prot:4,carb:6,fat:3.5,fiber:3,sugar:1,sodium:310,iron:4,calcium:120,vit_c:35,vit_a:800,potassium:360,benefit:"Spinach is one of the most nutrient-dense foods — iron, Vitamin A, K, C, folate, and calcium all in one."},
+{name:"Lauki (Bottle Gourd)",cat:"Vegetables",emoji:"🥒",unit:"g",cal:55,prot:1.5,carb:8,fat:2,fiber:2,sugar:3,sodium:200,iron:0.4,calcium:20,vit_c:12,vit_a:6,potassium:180,benefit:"92% water — excellent for hydration, kidney health, and weight loss. Cooling food for summer."},
+{name:"Karela (Bitter Gourd)",cat:"Vegetables",emoji:"🥒",unit:"g",cal:34,prot:1,carb:7,fat:0.2,fiber:2.8,sugar:0,sodium:5,iron:0.4,calcium:19,vit_c:84,vit_a:24,potassium:296,benefit:"Powerful blood sugar regulator — used in diabetic diets. Rich in Vitamin C, antioxidants, and anti-inflammatory compounds."},
+{name:"Gajar (Carrot)",cat:"Vegetables",emoji:"🥕",unit:"g",cal:41,prot:0.9,carb:10,fat:0.2,fiber:2.8,sugar:4.7,sodium:69,iron:0.3,calcium:33,vit_c:5.9,vit_a:835,potassium:320,benefit:"Richest source of beta-carotene (Vitamin A) — crucial for eye health and immune system. Also good for skin."},
+{name:"Matar (Green Peas)",cat:"Vegetables",emoji:"🫛",unit:"g",cal:81,prot:5.4,carb:14,fat:0.4,fiber:5.1,sugar:6,sodium:5,iron:1.5,calcium:25,vit_c:40,vit_a:38,potassium:244,benefit:"Surprisingly high in plant protein and fiber. Rich in Vitamin K and C. Good for heart and bone health."},
+{name:"Methi (Fenugreek)",cat:"Vegetables",emoji:"🌿",unit:"g",cal:49,prot:4.4,carb:6,fat:0.9,fiber:2.7,sugar:0,sodium:67,iron:3.3,calcium:176,vit_c:3,vit_a:60,potassium:770,benefit:"Exceptional calcium and iron content. Helps regulate blood sugar, cholesterol. Used medicinally in Ayurveda."},
+{name:"Shimla Mirch (Capsicum)",cat:"Vegetables",emoji:"🫑",unit:"g",cal:31,prot:1,carb:6,fat:0.3,fiber:2.1,sugar:4.2,sodium:4,iron:0.4,calcium:10,vit_c:128,vit_a:157,potassium:211,benefit:"One of the richest Vitamin C foods — more than oranges! Also high in Vitamin A. Great for immunity."},
+{name:"Tomato",cat:"Vegetables",emoji:"🍅",unit:"g",cal:18,prot:0.9,carb:3.9,fat:0.2,fiber:1.2,sugar:2.6,sodium:5,iron:0.3,calcium:10,vit_c:14,vit_a:42,potassium:237,benefit:"Lycopene — a powerful antioxidant that may reduce cancer risk. Rich in Vitamin C, K, folate, and potassium."},
+{name:"Onion",cat:"Vegetables",emoji:"🧅",unit:"g",cal:40,prot:1.1,carb:9.3,fat:0.1,fiber:1.7,sugar:4.2,sodium:4,iron:0.2,calcium:23,vit_c:7.4,vit_a:0,potassium:146,benefit:"Quercetin in onions is a powerful antioxidant and anti-inflammatory. Supports heart health and immunity."},
+{name:"Garlic",cat:"Vegetables",emoji:"🧄",unit:"g",cal:149,prot:6.4,carb:33,fat:0.5,fiber:2.1,sugar:1,sodium:17,iron:1.7,calcium:181,vit_c:31,vit_a:0,potassium:401,benefit:"Allicin in garlic is a potent antimicrobial and heart-protective compound. Lowers blood pressure and cholesterol."},
+{name:"Ginger",cat:"Vegetables",emoji:"🫚",unit:"g",cal:80,prot:1.8,carb:18,fat:0.8,fiber:2,sugar:1.7,sodium:13,iron:0.6,calcium:16,vit_c:5,vit_a:0,potassium:415,benefit:"Gingerol reduces nausea, muscle pain, and inflammation. Aids digestion and helps fight infections."},
+{name:"Cauliflower",cat:"Vegetables",emoji:"🥦",unit:"g",cal:25,prot:1.9,carb:5,fat:0.3,fiber:2,sugar:1.9,sodium:30,iron:0.4,calcium:22,vit_c:48,vit_a:0,potassium:299,benefit:"Cruciferous powerhouse — sulforaphane fights cancer cells. Rich in Vitamin C, K, and choline for brain health."},
+{name:"Cabbage (Patta Gobhi)",cat:"Vegetables",emoji:"🥬",unit:"g",cal:25,prot:1.3,carb:6,fat:0.1,fiber:2.5,sugar:3.2,sodium:18,iron:0.5,calcium:40,vit_c:36,vit_a:5,potassium:170,benefit:"High in Vitamin C and K. Contains sulforaphane — anti-cancer compound. Excellent for gut health."},
+{name:"Beetroot (Chukandar)",cat:"Vegetables",emoji:"🫀",unit:"g",cal:43,prot:1.6,carb:10,fat:0.2,fiber:2.8,sugar:6.8,sodium:78,iron:0.8,calcium:16,vit_c:4.9,vit_a:2,potassium:325,benefit:"Nitrates in beetroot improve blood flow and athletic performance. Rich in folate — essential during pregnancy."},
+{name:"Cucumber (Kheera)",cat:"Vegetables",emoji:"🥒",unit:"g",cal:16,prot:0.7,carb:3.6,fat:0.1,fiber:0.5,sugar:1.7,sodium:2,iron:0.3,calcium:16,vit_c:2.8,vit_a:5,potassium:147,benefit:"96% water — top hydrating food. Contains antioxidants that reduce inflammation. Very low calorie."},
+{name:"Pumpkin (Kaddu)",cat:"Vegetables",emoji:"🎃",unit:"g",cal:26,prot:1,carb:6.5,fat:0.1,fiber:0.5,sugar:2.8,sodium:1,iron:0.8,calcium:21,vit_c:9,vit_a:369,potassium:340,benefit:"Extremely rich in beta-carotene (Vitamin A) for eye and immune health. Low calorie and very filling."},
+{name:"Corn (Makka)",cat:"Vegetables",emoji:"🌽",unit:"g",cal:86,prot:3.3,carb:19,fat:1.4,fiber:2.7,sugar:3.2,sodium:15,iron:0.5,calcium:2,vit_c:6.8,vit_a:11,potassium:270,benefit:"Rich in lutein and zeaxanthin for eye health. Contains resistant starch that feeds good gut bacteria."},
+
+// ── FRUITS ────────────────────────────────────────────────────────────────
+{name:"Mango (Aam)",cat:"Fruits",emoji:"🥭",unit:"g",cal:60,prot:0.8,carb:15,fat:0.4,fiber:1.6,sugar:13.7,sodium:1,iron:0.2,calcium:11,vit_c:36,vit_a:54,potassium:168,benefit:"King of fruits — packed with Vitamin C, A, and folate. Enzymes aid digestion. Rich in antioxidants."},
+{name:"Banana (Kela)",cat:"Fruits",emoji:"🍌",unit:"g",cal:89,prot:1.1,carb:23,fat:0.3,fiber:2.6,sugar:12,sodium:1,iron:0.3,calcium:5,vit_c:8.7,vit_a:3,potassium:358,benefit:"Highest potassium fruit — great for heart, muscles, and blood pressure. Quick energy source. Contains B6 for brain health."},
+{name:"Apple (Seb)",cat:"Fruits",emoji:"🍎",unit:"g",cal:52,prot:0.3,carb:14,fat:0.2,fiber:2.4,sugar:10,sodium:1,iron:0.1,calcium:6,vit_c:4.6,vit_a:3,potassium:107,benefit:"Quercetin and pectin fiber support heart health. May reduce risk of diabetes and cancer. 'An apple a day...'"},
+{name:"Papaya (Papita)",cat:"Fruits",emoji:"🍈",unit:"g",cal:43,prot:0.5,carb:11,fat:0.3,fiber:1.7,sugar:7.8,sodium:8,iron:0.1,calcium:20,vit_c:60,vit_a:47,potassium:182,benefit:"Papain enzyme powerfully aids protein digestion. Rich in Vitamin C — one serving covers daily needs. Anti-inflammatory."},
+{name:"Guava (Amrood)",cat:"Fruits",emoji:"🍐",unit:"g",cal:68,prot:2.6,carb:14,fat:1,fiber:5.4,sugar:8.9,sodium:2,iron:0.3,calcium:18,vit_c:228,vit_a:31,potassium:417,benefit:"Highest Vitamin C fruit in India — 4x more than oranges! Rich in fiber, potassium, and antioxidant lycopene."},
+{name:"Pomegranate (Anar)",cat:"Fruits",emoji:"🍎",unit:"g",cal:83,prot:1.7,carb:19,fat:1.2,fiber:4,sugar:13.7,sodium:3,iron:0.3,calcium:10,vit_c:10,vit_a:0,potassium:236,benefit:"Punicalagins are powerful antioxidants — anti-cancer, anti-inflammatory. Great for heart health and blood pressure."},
+{name:"Watermelon (Tarbooz)",cat:"Fruits",emoji:"🍉",unit:"g",cal:30,prot:0.6,carb:7.6,fat:0.2,fiber:0.4,sugar:6.2,sodium:1,iron:0.2,calcium:7,vit_c:8.1,vit_a:28,potassium:112,benefit:"92% water — best hydrating fruit. Lycopene protects heart and skin. L-citrulline reduces muscle soreness."},
+{name:"Orange (Santra)",cat:"Fruits",emoji:"🍊",unit:"g",cal:47,prot:0.9,carb:12,fat:0.1,fiber:2.4,sugar:9.4,sodium:0,iron:0.1,calcium:40,vit_c:53,vit_a:11,potassium:181,benefit:"Vitamin C powerhouse. Hesperidin lowers blood pressure. Fiber and folate support heart and digestion."},
+{name:"Grapes (Angoor)",cat:"Fruits",emoji:"🍇",unit:"g",cal:69,prot:0.7,carb:18,fat:0.2,fiber:0.9,sugar:15,sodium:2,iron:0.4,calcium:10,vit_c:3.2,vit_a:3,potassium:191,benefit:"Resveratrol in red grapes is anti-aging and heart-protective. Rich in antioxidants and Vitamin K."},
+{name:"Pineapple (Ananas)",cat:"Fruits",emoji:"🍍",unit:"g",cal:50,prot:0.5,carb:13,fat:0.1,fiber:1.4,sugar:9.9,sodium:1,iron:0.3,calcium:13,vit_c:47,vit_a:3,potassium:109,benefit:"Bromelain enzyme reduces inflammation and aids digestion. Rich in Vitamin C and manganese for bone health."},
+{name:"Strawberry",cat:"Fruits",emoji:"🍓",unit:"g",cal:32,prot:0.7,carb:7.7,fat:0.3,fiber:2,sugar:4.9,sodium:1,iron:0.4,calcium:16,vit_c:58,vit_a:1,potassium:153,benefit:"High in Vitamin C, anthocyanins, and ellagic acid. Supports heart health, brain function, and reduces inflammation."},
+{name:"Coconut (Nariyal)",cat:"Fruits",emoji:"🥥",unit:"g",cal:354,prot:3.3,carb:15,fat:33,fiber:9,sugar:6.2,sodium:20,iron:2.4,calcium:14,vit_c:3.3,vit_a:0,potassium:356,benefit:"MCT fats are quickly converted to energy. High in fiber and manganese. Antimicrobial lauric acid boosts immunity."},
+{name:"Dates (Khajoor)",cat:"Fruits",emoji:"🫘",unit:"g",cal:282,prot:2.5,carb:75,fat:0.4,fiber:8,sugar:63,sodium:1,iron:0.9,calcium:64,vit_c:0,vit_a:7,potassium:696,benefit:"Natural energy powerhouse rich in iron, potassium, and fiber. Excellent pre-workout food. Helps with anemia."},
+{name:"Amla (Indian Gooseberry)",cat:"Fruits",emoji:"🟢",unit:"g",cal:44,prot:0.9,carb:10,fat:0.6,fiber:4.3,sugar:0,sodium:1,iron:0.3,calcium:25,vit_c:600,vit_a:9,potassium:198,benefit:"Highest Vitamin C content of any natural food — 600mg per 100g. Powerful for immunity, hair, skin, and digestion."},
+
+// ── SUPERFOODS ────────────────────────────────────────────────────────────
+{name:"Turmeric (Haldi)",cat:"Superfoods",emoji:"🟡",unit:"g",cal:354,prot:7.8,carb:65,fat:9.9,fiber:21,sugar:3.2,sodium:38,iron:41,calcium:183,vit_c:0,vit_a:0,potassium:2080,benefit:"Curcumin is one of the most powerful anti-inflammatory compounds known. Supports joint health, brain function, and cancer prevention."},
+{name:"Moringa (Drumstick)",cat:"Superfoods",emoji:"🌿",unit:"g",cal:64,prot:9.4,carb:8.3,fat:1.4,fiber:2,sugar:0,sodium:9,iron:4,calcium:185,vit_c:51,vit_a:378,potassium:337,benefit:"Called the miracle tree — more calcium than milk, more iron than spinach, more Vitamin C than oranges. Antioxidant powerhouse."},
+{name:"Ashwagandha",cat:"Superfoods",emoji:"🌿",unit:"g",cal:245,prot:3.9,carb:49,fat:0.3,fiber:32,sugar:0,sodium:0,iron:3.3,calcium:23,vit_c:0,vit_a:0,potassium:0,benefit:"Adaptogen that reduces cortisol (stress hormone), improves sleep quality, boosts testosterone, and enhances endurance. Ancient Ayurvedic herb."},
+{name:"Flax Seeds (Alsi)",cat:"Superfoods",emoji:"🌾",unit:"g",cal:534,prot:18,carb:29,fat:42,fiber:27,sugar:1.5,sodium:30,iron:5.7,calcium:255,vit_c:0,vit_a:0,potassium:813,benefit:"Richest plant source of Omega-3 (ALA). Lignans have anti-cancer properties. Very high fiber for gut health."},
+{name:"Chia Seeds",cat:"Superfoods",emoji:"🌾",unit:"g",cal:486,prot:17,carb:42,fat:31,fiber:34,sugar:0,sodium:16,iron:7.7,calcium:631,vit_c:1.6,vit_a:0,potassium:407,benefit:"Gram for gram, more calcium than milk. Highest fiber food. Omega-3 rich. Forms gel in stomach — keeps you full for hours."},
+{name:"Tulsi (Holy Basil)",cat:"Superfoods",emoji:"🌿",unit:"g",cal:23,prot:3.2,carb:2.7,fat:0.6,fiber:1.6,sugar:0,sodium:4,iron:3.2,calcium:177,vit_c:18,vit_a:264,potassium:295,benefit:"Sacred Indian herb — antimicrobial, anti-stress, and immune-boosting. Eugenol reduces inflammation. Used for cold, cough, and stress."},
+{name:"Spirulina",cat:"Superfoods",emoji:"🟢",unit:"g",cal:290,prot:57,carb:24,fat:8,fiber:3.6,sugar:3.1,sodium:1048,iron:28,calcium:120,vit_c:10,vit_a:570,potassium:1363,benefit:"Highest protein density of any food — 57g per 100g. Complete amino acids, B12, iron. NASA-approved superfood for space missions."},
+{name:"Wheat Grass",cat:"Superfoods",emoji:"🌾",unit:"g",cal:25,prot:2.4,carb:5,fat:0.1,fiber:1.8,sugar:0,sodium:10,iron:1,calcium:24,vit_c:30,vit_a:120,potassium:170,benefit:"Rich in chlorophyll which detoxifies blood and liver. Contains enzymes and amino acids. Alkalising effect on body pH."},
+{name:"Black Seed (Kalonji)",cat:"Superfoods",emoji:"🌑",unit:"g",cal:375,prot:17,carb:52,fat:22,fiber:4,sugar:0,sodium:88,iron:11,calcium:931,vit_c:0,vit_a:0,potassium:1694,benefit:"Thymoquinone has powerful anti-cancer, anti-inflammatory, antioxidant effects. Ancient cure-all in Islamic and Ayurvedic medicine."},
+{name:"Sabja (Basil Seeds)",cat:"Superfoods",emoji:"🌾",unit:"g",cal:446,prot:14,carb:63,fat:14,fiber:22,sugar:0,sodium:76,iron:14,calcium:1295,vit_c:0,vit_a:0,potassium:0,benefit:"Highest plant-based calcium food. Cooling effect on body. Expands 30x in water — controls hunger and aids weight loss."},
+
+// ── LIQUIDS (per 100ml) ───────────────────────────────────────────────────
+{name:"Masala Chai",cat:"Drinks",emoji:"🍵",unit:"ml",cal:55,prot:1.5,carb:8,fat:2,fiber:0,sugar:7,sodium:20,iron:0.1,calcium:55,vit_c:0,vit_a:20,potassium:80,benefit:"Ginger, cardamom, and cinnamon in chai have anti-inflammatory and digestive benefits. Antioxidants from black tea."},
+{name:"Mango Lassi",cat:"Drinks",emoji:"🥤",unit:"ml",cal:120,prot:3.5,carb:22,fat:2.5,fiber:0.5,sugar:20,sodium:50,iron:0.3,calcium:110,vit_c:18,vit_a:110,potassium:200,benefit:"Probiotic yogurt + mango Vitamin C and A. Cooling, energising summer drink with calcium and digestive benefits."},
+{name:"Coconut Water",cat:"Drinks",emoji:"🥥",unit:"ml",cal:19,prot:0.7,carb:3.7,fat:0.2,fiber:0,sugar:2.6,sodium:105,iron:0.3,calcium:24,vit_c:2.4,vit_a:0,potassium:250,benefit:"Nature's sports drink — natural electrolytes (potassium, sodium, magnesium) without any artificial additives."},
+{name:"Nimbu Pani (Lemon Water)",cat:"Drinks",emoji:"🍋",unit:"ml",cal:30,prot:0.3,carb:8,fat:0.1,fiber:0,sugar:7,sodium:180,iron:0.1,calcium:8,vit_c:18,vit_a:0,potassium:50,benefit:"Vitamin C boosts immunity. Alkalises body pH. Aids digestion and detoxification. Natural electrolyte refresher."},
+{name:"Buttermilk (Chaas)",cat:"Drinks",emoji:"🥛",unit:"ml",cal:40,prot:3,carb:5,fat:1,fiber:0,sugar:4.5,sodium:105,iron:0.1,calcium:100,vit_c:0,vit_a:20,potassium:140,benefit:"Probiotic-rich drink that cools the body, aids digestion, and prevents acid reflux. Excellent for gut microbiome."},
+{name:"Lassi (Sweet)",cat:"Drinks",emoji:"🥛",unit:"ml",cal:95,prot:4,carb:12,fat:3.5,fiber:0,sugar:11,sodium:55,iron:0.1,calcium:130,vit_c:0,vit_a:35,potassium:165,benefit:"High calcium yogurt drink with probiotics. Cooling, energising, and great for bone health and gut health."},
+{name:"Milk (Full Fat)",cat:"Drinks",emoji:"🥛",unit:"ml",cal:65,prot:3.2,carb:4.8,fat:3.8,fiber:0,sugar:4.8,sodium:44,iron:0.1,calcium:113,vit_c:0,vit_a:46,potassium:150,benefit:"Complete food — protein, calcium, B12, Vitamin D (if fortified). Essential for bone development and muscle health."},
+{name:"Aam Panna (Raw Mango Drink)",cat:"Drinks",emoji:"🥤",unit:"ml",cal:40,prot:0.3,carb:10,fat:0.1,fiber:0.3,sugar:8,sodium:150,iron:0.2,calcium:10,vit_c:30,vit_a:15,potassium:80,benefit:"Raw mango prevents heat stroke. Rich in Vitamin C and electrolytes. Traditional Indian summer cooler."},
+{name:"Haldi Doodh (Golden Milk)",cat:"Drinks",emoji:"🥛",unit:"ml",cal:80,prot:3.5,carb:7,fat:4,fiber:0.2,sugar:5,sodium:48,iron:0.4,calcium:120,vit_c:0,vit_a:50,potassium:170,benefit:"Turmeric's curcumin + milk's calcium = anti-inflammatory powerhouse. Aids sleep, boosts immunity, reduces joint pain."},
+{name:"Sugarcane Juice (Ganna)",cat:"Drinks",emoji:"🌿",unit:"ml",cal:54,prot:0.3,carb:13,fat:0.2,fiber:0,sugar:12,sodium:17,iron:0.4,calcium:11,vit_c:11,vit_a:2,potassium:160,benefit:"Natural electrolytes restore energy instantly. Contains policosanols for heart health. Liver detoxifier."},
+
+// ── BREAD ────────────────────────────────────────────────────────────────
+{name:"Roti (Chapati)",cat:"Bread",emoji:"🫓",unit:"g",cal:104,prot:3.5,carb:20,fat:1,fiber:2,sugar:0,sodium:80,iron:1.2,calcium:16,vit_c:0,vit_a:0,potassium:100,benefit:"Whole wheat provides fiber, B vitamins, and complex carbohydrates for sustained energy. Staple of Indian diet."},
+{name:"Puri",cat:"Bread",emoji:"🫓",unit:"g",cal:250,prot:5,carb:35,fat:11,fiber:2,sugar:0.5,sodium:180,iron:1.5,calcium:20,vit_c:0,vit_a:0,potassium:90,benefit:"Deep-fried wheat bread — high energy, good for occasional indulgence. Provides carbohydrates and B vitamins."},
+{name:"Naan",cat:"Bread",emoji:"🫓",unit:"g",cal:310,prot:8,carb:52,fat:7,fiber:2.5,sugar:3,sodium:480,iron:2,calcium:35,vit_c:0,vit_a:0,potassium:120,benefit:"Maida-based bread — soft and rich. Good source of quick energy. Yogurt in dough adds slight probiotic benefit."},
+{name:"Missi Roti",cat:"Bread",emoji:"🫓",unit:"g",cal:145,prot:5.5,carb:25,fat:3.5,fiber:3.5,sugar:0.5,sodium:240,iron:1.8,calcium:35,vit_c:0,vit_a:5,potassium:140,benefit:"Besan (chickpea flour) adds protein and iron. High fiber. More nutritious than plain roti. Diabetic-friendly."},
+
+// ── SNACKS ───────────────────────────────────────────────────────────────
+{name:"Samosa",cat:"Snacks",emoji:"🥟",unit:"g",cal:308,prot:5,carb:42,fat:14,fiber:2.5,sugar:1,sodium:460,iron:1.5,calcium:25,vit_c:8,vit_a:10,potassium:200,benefit:"Potato filling provides potassium and B6. Best enjoyed occasionally. Spices inside have digestive benefits."},
+{name:"Pakora (Vegetable)",cat:"Snacks",emoji:"🧅",unit:"g",cal:290,prot:6,carb:32,fat:16,fiber:2.5,sugar:1,sodium:380,iron:1.2,calcium:30,vit_c:10,vit_a:20,potassium:180,benefit:"Besan coating adds protein and iron. Vegetables inside retain some nutrients. Best with green chutney (Vitamin C)."},
+{name:"Dhokla",cat:"Snacks",emoji:"🟡",unit:"g",cal:145,prot:6,carb:25,fat:2,fiber:1.5,sugar:3,sodium:380,iron:1,calcium:45,vit_c:0,vit_a:0,potassium:100,benefit:"Fermented besan — light, probiotic, and high protein. One of India's healthiest snacks. Low fat and low calorie."},
+{name:"Pav Bhaji",cat:"Snacks",emoji:"🥖",unit:"g",cal:180,prot:5,carb:28,fat:6,fiber:3.5,sugar:4,sodium:520,iron:1.5,calcium:50,vit_c:30,vit_a:80,potassium:360,benefit:"Mixed vegetable bhaji is nutrient-rich. Vitamin C from tomato and capsicum. Filling, flavourful street food."},
+
+// ── DAIRY (solid) ────────────────────────────────────────────────────────
+{name:"Dahi (Curd)",cat:"Dairy",emoji:"🥛",unit:"g",cal:60,prot:3.5,carb:4,fat:3.5,fiber:0,sugar:4,sodium:46,iron:0.1,calcium:120,vit_c:0,vit_a:30,potassium:155,benefit:"Probiotic-rich food that improves gut microbiome, boosts immunity, and aids digestion. Excellent calcium source."},
+{name:"Paneer",cat:"Dairy",emoji:"🧀",unit:"g",cal:265,prot:18,carb:3,fat:20,fiber:0,sugar:3,sodium:30,iron:0.5,calcium:480,vit_c:0,vit_a:80,potassium:90,benefit:"Highest calcium dairy product. Complete protein. Essential for bones, teeth, and muscle. Great vegetarian protein."},
+{name:"Ghee",cat:"Dairy",emoji:"🧈",unit:"g",cal:898,prot:0,carb:0,fat:100,fiber:0,sugar:0,sodium:2,iron:0,calcium:0,vit_c:0,vit_a:0,potassium:5,benefit:"Contains butyrate — feeds good gut bacteria. Short-chain fatty acids support brain health. Ayurveda's golden medicine."},
+
+// ── SWEETS ───────────────────────────────────────────────────────────────
+{name:"Gulab Jamun",cat:"Sweets",emoji:"🍮",unit:"g",cal:380,prot:6,carb:55,fat:16,fiber:0.5,sugar:45,sodium:120,iron:0.5,calcium:80,vit_c:0,vit_a:20,potassium:110,benefit:"High sugar dessert — treat in moderation. Khoya provides calcium and protein. Rosewater has mood-enhancing properties."},
+{name:"Halwa (Suji)",cat:"Sweets",emoji:"🍮",unit:"g",cal:310,prot:5,carb:45,fat:13,fiber:1,sugar:28,sodium:90,iron:1.2,calcium:30,vit_c:0,vit_a:20,potassium:100,benefit:"Quick energy food. Semolina provides iron and B vitamins. Ghee adds healthy fats. Good post-fast recovery food."},
+{name:"Ladoo (Besan)",cat:"Sweets",emoji:"🟡",unit:"g",cal:450,prot:8,carb:58,fat:22,fiber:2,sugar:38,sodium:85,iron:2,calcium:60,vit_c:0,vit_a:0,potassium:120,benefit:"Chickpea flour ladoo has protein and iron. Ghee provides energy. Traditionally given to new mothers for recovery."},
+
+// ── FISH & MUTTON ────────────────────────────────────────────────────────
+{name:"Fish Curry",cat:"Fish & Mutton",emoji:"🐟",unit:"g",cal:142,prot:18,carb:4,fat:6,fiber:1,sugar:1.5,sodium:520,iron:1.2,calcium:35,vit_c:8,vit_a:40,potassium:380,benefit:"Omega-3 rich fish supports heart and brain health. High lean protein. Spice base adds anti-inflammatory benefits."},
+{name:"Prawn Masala",cat:"Fish & Mutton",emoji:"🦐",unit:"g",cal:165,prot:22,carb:5,fat:6.5,fiber:1,sugar:2,sodium:560,iron:2.5,calcium:80,vit_c:10,vit_a:60,potassium:340,benefit:"Prawns are high in protein, iodine, selenium, and Vitamin B12. Low calorie and highly nutritious seafood."},
+{name:"Mutton Curry",cat:"Fish & Mutton",emoji:"🥩",unit:"g",cal:258,prot:22,carb:5,fat:17,fiber:1,sugar:2,sodium:520,iron:3.2,calcium:30,vit_c:5,vit_a:30,potassium:340,benefit:"Red meat is richest source of heme iron — best absorbed form. High B12 and zinc. Good for anemia."},
+{name:"Seekh Kebab",cat:"Fish & Mutton",emoji:"🥩",unit:"g",cal:230,prot:22,carb:4,fat:14,fiber:1,sugar:1,sodium:480,iron:3,calcium:25,vit_c:3,vit_a:20,potassium:310,benefit:"Grilled minced meat retains high protein and iron. Spices like cumin and coriander aid digestion."},
+
+// ── SIDES ────────────────────────────────────────────────────────────────
+{name:"Raita",cat:"Sides",emoji:"🥗",unit:"g",cal:62,prot:3,carb:6,fat:2.5,fiber:0.5,sugar:5,sodium:120,iron:0.2,calcium:110,vit_c:3,vit_a:25,potassium:175,benefit:"Yogurt-based cooling side. Probiotics aid digestion. Cucumber/boondi add texture. Perfect complement to spicy meals."},
+{name:"Papad",cat:"Sides",emoji:"⭕",unit:"g",cal:350,prot:22,carb:52,fat:4,fiber:6,sugar:0,sodium:1500,iron:5,calcium:100,vit_c:0,vit_a:0,potassium:350,benefit:"Urad dal papad has impressive protein and iron content. Very high sodium — limit intake if watching salt."},
+{name:"Chutney (Mint)",cat:"Sides",emoji:"🌿",unit:"g",cal:45,prot:1.5,carb:7,fat:1,fiber:2,sugar:2,sodium:280,iron:1.5,calcium:30,vit_c:20,vit_a:80,potassium:120,benefit:"Mint is rich in Vitamin A and antioxidants. Aids digestion and freshens breath. Coriander adds Vitamin C."},
 ];
 
 const CATS = [...new Set(FOODS.map(f=>f.cat))];
-let s1Cat = 'All';
-let s1Selected = null;
-let plateItems = [];
-let tableRows = [];
+const EMOJIS_CAT = {Breakfast:'🥞',Eggs:'🥚',Rice:'🍚',Dal:'🫘',Paneer:'🧀',Chicken:'🍗',Vegetables:'🥦',Fruits:'🍎',Superfoods:'✨',Drinks:'🥤',Bread:'🫓',Snacks:'🥨',Dairy:'🥛',Sweets:'🍮','Fish & Mutton':'🐟',Sides:'🫙'};
+let s1Cat='All', s1Selected=null, plateItems=[], tableRows=[];
 
-function scale(f, g){ const r=g/100; return {cal:f.cal*r,prot:f.prot*r,carb:f.carb*r,fat:f.fat*r,fiber:f.fiber*r,sugar:f.sugar*r,sodium:f.sodium*r,iron:f.iron*r,calcium:f.calcium*r,vit_c:f.vit_c*r,vit_a:f.vit_a*r,potassium:f.potassium*r}; }
-function fmt(v,d=1){ return parseFloat(v.toFixed(d)); }
+function unitLabel(f){
+  if(f.unit==='ml') return 'per 100ml';
+  if(f.unit==='egg') return f.unitLabel||'per egg';
+  return 'per 100g';
+}
+function unitShort(f){
+  if(f.unit==='ml') return '100ml';
+  if(f.unit==='egg') return 'egg';
+  return '100g';
+}
+function tableUnitLabel(f){
+  if(f.unit==='ml') return 'ml';
+  if(f.unit==='egg') return 'eggs';
+  return 'g';
+}
+function scale(f,qty){
+  const r = (f.unit==='egg') ? qty : qty/100;
+  return{cal:f.cal*r,prot:f.prot*r,carb:f.carb*r,fat:f.fat*r,fiber:f.fiber*r,sugar:f.sugar*r,sodium:f.sodium*r,iron:f.iron*r,calcium:f.calcium*r,vit_c:f.vit_c*r,vit_a:f.vit_a*r,potassium:f.potassium*r};
+}
+function fmt(v,d=1){return parseFloat(v.toFixed(d));}
 
-// ─── SINGLE ──────────────────────────────────────────────────────────────────
+// ── SINGLE ───────────────────────────────────────────────────────────────
 function initChips(){
-  const wrap = document.getElementById('s1-chips');
+  const wrap=document.getElementById('s1-chips');
   ['All',...CATS].forEach(c=>{
-    const btn = document.createElement('button');
-    btn.className = 'chip' + (c===s1Cat?' active':'');
-    btn.textContent = (EMOJIS[c]||'') + ' ' + c;
-    btn.onclick = ()=>{ s1Cat=c; document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active')); btn.classList.add('active'); renderSingle(); };
-    wrap.appendChild(btn);
+    const b=document.createElement('button');
+    b.className='chip'+(c===s1Cat?' active':'');
+    b.textContent=(EMOJIS_CAT[c]||'')+' '+c;
+    b.onclick=()=>{s1Cat=c;document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderSingle();};
+    wrap.appendChild(b);
   });
 }
-
 function renderSingle(){
-  const q = document.getElementById('s1-search').value.toLowerCase();
-  const foods = FOODS.filter(f=>(!q||f.name.toLowerCase().includes(q))&&(s1Cat==='All'||f.cat===s1Cat));
-  const list = document.getElementById('s1-list');
-  list.innerHTML = foods.length ? foods.map((f,i)=>`
-    <div class="food-row${s1Selected===FOODS.indexOf(f)?' selected':''}" onclick="showDetail(${FOODS.indexOf(f)})">
-      <span class="food-emoji">${EMOJIS[f.cat]||'🍴'}</span>
-      <div class="food-info">
-        <div class="food-name">${f.name}</div>
-        <div class="food-cat">${f.cat}</div>
-      </div>
-      <div class="food-kcal">${f.cal} kcal</div>
-    </div>`).join('') : '<div class="no-results">No foods found</div>';
+  const q=document.getElementById('s1-search').value.toLowerCase();
+  const foods=FOODS.filter(f=>(!q||f.name.toLowerCase().includes(q))&&(s1Cat==='All'||f.cat===s1Cat));
+  document.getElementById('s1-list').innerHTML=foods.length?foods.map(f=>`
+  <div class="food-row${s1Selected===FOODS.indexOf(f)?' selected':''}" onclick="showDetail(${FOODS.indexOf(f)})">
+    <span class="food-emoji">${f.emoji}</span>
+    <div class="food-info"><div class="food-name">${f.name}</div><div class="food-cat">${f.cat}</div></div>
+    <div class="food-unit">${f.cal} kcal<br><span style="font-size:9px;color:var(--text3)">${unitShort(f)}</span></div>
+  </div>`).join(''):'<div class="no-results">No foods found</div>';
 }
-
 function showDetail(idx){
-  s1Selected = idx;
-  const f = FOODS[idx];
-  const mx = Math.max(f.prot,f.carb,f.fat,f.fiber)||1;
-  document.getElementById('s1-detail').innerHTML = `
+  s1Selected=idx;
+  const f=FOODS[idx];
+  const mx=Math.max(f.prot,f.carb,f.fat,f.fiber)||1;
+  document.getElementById('s1-detail').innerHTML=`
   <div class="detail-card">
     <div class="detail-header">
-      <div>
-        <div class="detail-title">${EMOJIS[f.cat]||''} ${f.name}</div>
-        <div class="detail-sub">${f.cat} · Per 100g serving</div>
-      </div>
+      <div><div class="detail-title">${f.emoji} ${f.name}</div><div class="detail-sub">${f.cat} · ${unitLabel(f)}</div></div>
       <div class="kcal-badge">${f.cal} kcal</div>
     </div>
-    <div class="micro-section-title">Macronutrients</div>
+    ${f.benefit?`<div class="benefit-box"><div class="benefit-title">✅ Health Benefits</div><div class="benefit-text">${f.benefit}</div></div>`:''}
+    <div class="micro-title">Macronutrients</div>
     <div class="macro-row">
       <div class="macro-tile"><div class="macro-val" style="color:#5B9BD5">${f.prot}g</div><div class="macro-lbl">Protein</div></div>
       <div class="macro-tile"><div class="macro-val" style="color:#FFB347">${f.carb}g</div><div class="macro-lbl">Carbs</div></div>
@@ -591,7 +391,7 @@ function showDetail(idx){
       ${[['Protein',f.prot,'#5B9BD5'],['Carbs',f.carb,'#FFB347'],['Fat',f.fat,'#E05C5C'],['Fiber',f.fiber,'#4CAF7D']].map(([l,v,c])=>`
       <div class="bar-item"><div class="bar-lbl">${l}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/mx*100)}%;background:${c}"></div></div><div class="bar-val">${v}g</div></div>`).join('')}
     </div>
-    <div class="micro-section-title">Micronutrients</div>
+    <div class="micro-title">Micronutrients</div>
     <div class="micro-grid">
       <div class="micro-tile"><span class="micro-name">Sugar</span><span class="micro-val">${f.sugar}g</span></div>
       <div class="micro-tile"><span class="micro-name">Sodium</span><span class="micro-val">${f.sodium}mg</span></div>
@@ -606,35 +406,30 @@ function showDetail(idx){
   renderSingle();
 }
 
-// ─── PLATE ───────────────────────────────────────────────────────────────────
+// ── PLATE ────────────────────────────────────────────────────────────────
 function renderPlateSearch(){
-  const q = document.getElementById('s2-search').value.toLowerCase();
-  const wrap = document.getElementById('s2-search-list');
+  const q=document.getElementById('s2-search').value.toLowerCase();
+  const wrap=document.getElementById('s2-search-list');
   if(!q){wrap.innerHTML='';return;}
-  const foods = FOODS.filter(f=>f.name.toLowerCase().includes(q)).slice(0,12);
-  wrap.innerHTML = foods.map(f=>`
-    <div class="food-row" onclick="addToPlate(${FOODS.indexOf(f)})">
-      <span class="food-emoji">${EMOJIS[f.cat]||'🍴'}</span>
-      <div class="food-info"><div class="food-name">${f.name}</div><div class="food-cat">${f.cat}</div></div>
-      <div class="food-kcal">+ Add</div>
-    </div>`).join('');
+  const foods=FOODS.filter(f=>f.name.toLowerCase().includes(q)).slice(0,14);
+  wrap.innerHTML=foods.map(f=>`
+  <div class="food-row" onclick="addToPlate(${FOODS.indexOf(f)})">
+    <span class="food-emoji">${f.emoji}</span>
+    <div class="food-info"><div class="food-name">${f.name}</div><div class="food-cat">${f.cat} · ${unitLabel(f)}</div></div>
+    <div class="food-unit" style="color:var(--green);font-size:12px">+ Add</div>
+  </div>`).join('');
 }
-
-function addToPlate(idx){ plateItems.push(idx); renderPlateDisplay(); document.getElementById('s2-search').value=''; document.getElementById('s2-search-list').innerHTML=''; }
-function removeFromPlate(i){ plateItems.splice(i,1); renderPlateDisplay(); }
-function clearPlate(){ plateItems=[]; renderPlateDisplay(); }
-
+function addToPlate(idx){plateItems.push(idx);renderPlateDisplay();document.getElementById('s2-search').value='';document.getElementById('s2-search-list').innerHTML='';}
+function removeFromPlate(i){plateItems.splice(i,1);renderPlateDisplay();}
+function clearPlate(){plateItems=[];renderPlateDisplay();}
 function renderPlateDisplay(){
-  const wrap = document.getElementById('s2-plate');
+  const wrap=document.getElementById('s2-plate');
   if(!plateItems.length){wrap.innerHTML='<div class="empty-state"><div class="e-icon">🍽️</div><p>Search a food above and tap to add it to your plate</p></div>';return;}
   const sum=k=>plateItems.reduce((a,idx)=>a+FOODS[idx][k],0);
-  const tC=sum('cal'),tP=sum('prot'),tCb=sum('carb'),tF=sum('fat'),tFi=sum('fiber');
-  wrap.innerHTML = `
+  const tC=sum('cal'),tP=sum('prot'),tCb=sum('carb'),tF=sum('fat'),tFi=sum('fiber'),tS=sum('sodium'),tI=sum('iron'),tCa=sum('calcium');
+  wrap.innerHTML=`
   <div class="total-strip">
-    <div class="total-strip-top">
-      <div class="total-label">TOTAL · ${plateItems.length} food${plateItems.length>1?'s':''}</div>
-      <div class="total-kcal">${Math.round(tC)} kcal</div>
-    </div>
+    <div class="total-top"><div class="total-lbl">TOTAL · ${plateItems.length} item${plateItems.length>1?'s':''}</div><div class="total-kcal">${Math.round(tC)} kcal</div></div>
     <div class="total-macros">
       <div class="total-m"><div class="total-mv" style="color:#5B9BD5">${tP.toFixed(1)}g</div><div class="total-ml">Protein</div></div>
       <div class="total-m"><div class="total-mv" style="color:#FFB347">${tCb.toFixed(1)}g</div><div class="total-ml">Carbs</div></div>
@@ -644,45 +439,43 @@ function renderPlateDisplay(){
   </div>
   <div class="btn-row"><button class="btn-sm btn-danger" onclick="clearPlate()">Clear plate</button></div>
   <div class="food-list">
-    ${plateItems.map((idx,i)=>{const f=FOODS[idx];return`
-    <div class="plate-row">
-      <span style="font-size:20px">${EMOJIS[f.cat]||'🍴'}</span>
-      <div class="plate-name">${f.name}</div>
-      <div class="plate-kcal">${f.cal} kcal</div>
-      <button class="plate-rm" onclick="removeFromPlate(${i})">×</button>
-    </div>`;}).join('')}
+  ${plateItems.map((idx,i)=>{const f=FOODS[idx];return`
+  <div class="plate-row">
+    <span style="font-size:20px">${f.emoji}</span>
+    <div style="flex:1"><div class="plate-name">${f.name}</div><div class="plate-unit-info">${unitLabel(f)}</div></div>
+    <div class="plate-kcal">${f.cal} kcal</div>
+    <button class="plate-rm" onclick="removeFromPlate(${i})">×</button>
+  </div>`;}).join('')}
   </div>`;
 }
 
-// ─── TABLE ───────────────────────────────────────────────────────────────────
+// ── TABLE ────────────────────────────────────────────────────────────────
 function renderTblSearch(){
-  const q = document.getElementById('s3-search').value.toLowerCase();
-  const dd = document.getElementById('s3-dd');
+  const q=document.getElementById('s3-search').value.toLowerCase();
+  const dd=document.getElementById('s3-dd');
   if(!q){dd.classList.remove('open');return;}
-  const foods = FOODS.filter(f=>f.name.toLowerCase().includes(q)).slice(0,12);
+  const foods=FOODS.filter(f=>f.name.toLowerCase().includes(q)).slice(0,14);
   if(!foods.length){dd.innerHTML='<div class="dd-item"><span class="dd-imeta">No results</span></div>';dd.classList.add('open');return;}
-  dd.innerHTML = foods.map(f=>`
-    <div class="dd-item" onclick="addToTable(${FOODS.indexOf(f)})">
-      <div><div class="dd-iname">${EMOJIS[f.cat]||''} ${f.name}</div><div class="dd-imeta">${f.cat}</div></div>
-      <div class="dd-kcal">${f.cal} kcal</div>
-    </div>`).join('');
+  dd.innerHTML=foods.map(f=>`
+  <div class="dd-item" onclick="addToTable(${FOODS.indexOf(f)})">
+    <div><div class="dd-iname">${f.emoji} ${f.name}</div><div class="dd-imeta">${f.cat} · ${unitLabel(f)}</div></div>
+    <div class="dd-kcal">${f.cal} kcal</div>
+  </div>`).join('');
   dd.classList.add('open');
 }
-function openTblDd(){ if(document.getElementById('s3-search').value) renderTblSearch(); }
-document.addEventListener('click',e=>{ if(!e.target.closest('#s3-search')&&!e.target.closest('#s3-dd')) document.getElementById('s3-dd').classList.remove('open'); });
-
+function openTblDd(){if(document.getElementById('s3-search').value)renderTblSearch();}
+document.addEventListener('click',e=>{if(!e.target.closest('#s3-search')&&!e.target.closest('#s3-dd'))document.getElementById('s3-dd').classList.remove('open');});
 function addToTable(idx){
-  if(!tableRows.some(r=>r.idx===idx)) tableRows.push({idx,qty:100});
+  if(!tableRows.some(r=>r.idx===idx))tableRows.push({idx,qty:(FOODS[idx].unit==='egg'?1:FOODS[idx].unit==='ml'?200:100)});
   document.getElementById('s3-dd').classList.remove('open');
   document.getElementById('s3-search').value='';
   renderTable();
 }
-function removeFromTable(i){ tableRows.splice(i,1); renderTable(); }
-function clearTable(){ tableRows=[]; renderTable(); }
-function updateQty(i,v){ const n=parseFloat(v); if(!isNaN(n)&&n>0){tableRows[i].qty=n;renderTable();} }
-
+function removeFromTable(i){tableRows.splice(i,1);renderTable();}
+function clearTable(){tableRows=[];renderTable();}
+function updateQty(i,v){const n=parseFloat(v);if(!isNaN(n)&&n>0){tableRows[i].qty=n;renderTable();}}
 function renderTable(){
-  const wrap = document.getElementById('s3-table');
+  const wrap=document.getElementById('s3-table');
   if(!tableRows.length){wrap.innerHTML='<div class="empty-state"><div class="e-icon">📊</div><p>Search and add foods above to build your custom nutrition table</p></div>';return;}
   const cols=[
     {k:'cal',l:'Cal',u:'kcal'},{k:'prot',l:'Prot',u:'g'},{k:'carb',l:'Carbs',u:'g'},
@@ -691,39 +484,30 @@ function renderTable(){
     {k:'vit_c',l:'VitC',u:'mg'},{k:'potassium',l:'K',u:'mg'},
   ];
   const totals={};cols.forEach(c=>totals[c.k]=0);
-  const bodyRows = tableRows.map((row,i)=>{
-    const f=FOODS[row.idx]; const s=scale(f,row.qty);
+  const bodyRows=tableRows.map((row,i)=>{
+    const f=FOODS[row.idx];const s=scale(f,row.qty);
     cols.forEach(c=>totals[c.k]+=s[c.k]);
-    return `<tr>
-      <td><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px">${EMOJIS[f.cat]||''} ${f.name}</div></td>
-      <td><input class="qty-in" type="number" min="1" max="2000" value="${row.qty}" onchange="updateQty(${i},this.value)"/></td>
-      ${cols.map(c=>`<td>${fmt(s[c.k])}<span style="font-size:9px;color:var(--text3)"> ${c.u}</span></td>`).join('')}
+    return`<tr>
+      <td><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px">${f.emoji} ${f.name}</div><div style="font-size:9px;color:var(--text3);font-weight:400">${tableUnitLabel(f)}</div></td>
+      <td><input class="qty-in" type="number" min="0.5" max="2000" step="${f.unit==='egg'?0.5:10}" value="${row.qty}" onchange="updateQty(${i},this.value)"/></td>
+      ${cols.map(c=>`<td>${fmt(s[c.k])}<span style="font-size:8px;color:var(--text3)"> ${c.u}</span></td>`).join('')}
       <td><button class="rm-x" onclick="removeFromTable(${i})">×</button></td>
     </tr>`;
   }).join('');
   wrap.innerHTML=`
-  <div class="btn-row"><button class="btn-sm btn-danger" onclick="clearTable()">Clear table</button><span style="font-size:11px;color:var(--text3);align-self:center">Edit grams per row — totals update live</span></div>
+  <div class="btn-row"><button class="btn-sm btn-danger" onclick="clearTable()">Clear</button><span style="font-size:10px;color:var(--text3);align-self:center">Adjust quantity — totals update live</span></div>
   <div class="tbl-scroll">
     <table class="ctbl">
-      <thead><tr>
-        <th>Food</th><th>Qty(g)</th>
-        ${cols.map(c=>`<th>${c.l}</th>`).join('')}
-        <th></th>
-      </tr></thead>
-      <tbody>
-        ${bodyRows}
-        <tr class="tbl-total">
-          <td>TOTAL</td><td>—</td>
-          ${cols.map(c=>`<td>${fmt(totals[c.k])}<span style="font-size:9px"> ${c.u}</span></td>`).join('')}
-          <td></td>
-        </tr>
+      <thead><tr><th>Food</th><th>Qty</th>${cols.map(c=>`<th>${c.l}</th>`).join('')}<th></th></tr></thead>
+      <tbody>${bodyRows}
+      <tr class="tbl-total"><td>TOTAL</td><td>—</td>${cols.map(c=>`<td>${fmt(totals[c.k])}<span style="font-size:8px"> ${c.u}</span></td>`).join('')}<td></td></tr>
       </tbody>
     </table>
   </div>`;
 }
 
-// ─── TABS ────────────────────────────────────────────────────────────────────
-function switchTab(name, btn){
+// ── TAB ──────────────────────────────────────────────────────────────────
+function switchTab(name,btn){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('s-'+name).classList.add('active');
@@ -731,36 +515,16 @@ function switchTab(name, btn){
   document.getElementById('content').scrollTop=0;
 }
 
-// ─── PWA INSTALL ─────────────────────────────────────────────────────────────
+// ── PWA ───────────────────────────────────────────────────────────────────
 let deferredPrompt;
-window.addEventListener('beforeinstallprompt', e=>{
-  e.preventDefault(); deferredPrompt=e;
-  document.getElementById('installBanner').classList.add('show');
-});
-document.getElementById('installBtn').addEventListener('click', async ()=>{
-  if(deferredPrompt){ deferredPrompt.prompt(); const r=await deferredPrompt.userChoice; deferredPrompt=null; }
-  document.getElementById('installBanner').classList.remove('show');
-});
-
-// ─── SERVICE WORKER ──────────────────────────────────────────────────────────
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBanner').classList.add('show');});
+document.getElementById('installBtn').addEventListener('click',async()=>{if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;}document.getElementById('installBanner').classList.remove('show');});
 if('serviceWorker' in navigator){
-  const swCode = `
-    const CACHE='nutriindia-v1';
-    const ASSETS=['/'];
-    self.addEventListener('install',e=>{ e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS))); self.skipWaiting(); });
-    self.addEventListener('activate',e=>{ e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k))))); self.clients.claim(); });
-    self.addEventListener('fetch',e=>{ e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match('/')))); });
-  `;
-  const swBlob = new Blob([swCode],{type:'application/javascript'});
-  const swURL = URL.createObjectURL(swBlob);
-  navigator.serviceWorker.register(swURL).catch(()=>{});
+  const sw=`const C='ni-v2';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(['./',location.href])));self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))));self.clients.claim();});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match('./'))));});`;
+  navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'}))).catch(()=>{});
 }
 
-// ─── INIT ────────────────────────────────────────────────────────────────────
-initChips();
-renderSingle();
-renderPlateDisplay();
-renderTable();
+initChips();renderSingle();renderPlateDisplay();renderTable();
 </script>
 </body>
 </html>
